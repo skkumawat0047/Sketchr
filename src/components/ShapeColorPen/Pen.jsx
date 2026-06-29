@@ -9,7 +9,7 @@ const Pen = () => {
                 <li><i class="fa-solid fa-highlighter text-red-400"></i></li>
                 <ul className='px-2 rounded-lg bg-gray-200 py-1 flex gap-3 [&>li]:bg-white [&>li]:rounded-md active:[&>li]:bg-slate-400 text-sm'>
                     <li><i className="fa-solid fa-minus" onClick={()=>setSize(Size-1)}></i></li>
-                    <span>{Size}</span>
+                    <span className='w-3'>{Size}</span>
                     <li><i className="fa-solid fa-plus" onClick={()=>setSize(Size+1)}></i></li>
                 </ul>
             </ul>
