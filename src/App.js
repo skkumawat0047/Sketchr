@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import Login from './components/Login/Login';
 import { useState } from 'react';
 function App() {
-  const [Home,useHome]=useState(false);
+  const [Home,useHome]=useState(true);
   return (
     <div className="App">
       <header className="App-header">
