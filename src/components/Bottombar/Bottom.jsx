@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Pen from '../ShapeColorPen/Pen'
 import Shape from '../ShapeColorPen/Shape';
 import Color from '../ShapeColorPen/Color';
+import Table from '../ShapeColorPen/Table';
 const Bottom = () => {
     const [Size, SetSize] = useState(50);
     const [isActive, setisActive] = useState("");
@@ -11,6 +12,7 @@ const Bottom = () => {
                 {isActive === "pen" ? (<Pen />) : ""}
                 {isActive === "shape" ? (<Shape />) : ""}
                 {isActive === "color" ? (<Color />) : ""}
+                {isActive === "table" ? (<Table />) : ""}
 
                 <ul className='w-fit px-5 rounded-full bg-gray-300 py-1 flex justify-center gap-3 text-2xl hover:[&>*]:cursor-pointer active:[&>li]:bg-blue-600 [&>*]:rounded-md'>
                     <li><i className="fa-solid fa-rotate-left" onClick={() => setisActive("")}></i></li>

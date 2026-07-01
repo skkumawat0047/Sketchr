@@ -16,7 +16,7 @@ const Sidebar = () => {
             <input className='text-xl' type="time" defaultValue="03:11"/>
             <button className='text-xl bg-sky-500 rounded-lg px-5 pb-1'>Start</button>
         </ul> */}
-        {Upload?(<div className="box border-2 border-black flex flex-col">
+        {Upload?(<div className="box border-2 rounded-md border-black flex flex-col">
           <input className='cursor-pointer p-3' type="file" accept='.png,.jpg,.jpeg,.gif,.webp'/>
           <hr className='my-3 mx-2 border-black' />
         </div>):""
