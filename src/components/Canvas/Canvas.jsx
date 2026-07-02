@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const Canvas = () => {
-  const [size, setSize] = useState(50);
+  const [size, setSize] = useState(100);
 
   return (
     <>

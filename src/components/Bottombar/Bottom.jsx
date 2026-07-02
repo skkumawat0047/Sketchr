@@ -20,7 +20,7 @@ const Bottom = () => {
                     <li style={{ background: isActive === "eraser" ? "blue" : "" }}><i className="fa-solid fa-eraser" onClick={() => setisActive("eraser")}></i></li>
                     <li style={{ background: isActive === "keyboard" ? "blue" : "" }}><i className="fa-regular fa-keyboard" onClick={() => setisActive("keyboard")}></i></li>
                     <li style={{ background: isActive === "shape" ? "blue" : "" }}><i className="fa-solid fa-shapes" onClick={() => setisActive("shape")}></i></li>
-                    <li style={{ background: isActive === "color" ? "blue" : "" }}><i class="fa-solid fa-palette text-yellow-700" onClick={() => setisActive("color")}></i></li>
+                    <li style={{ background: isActive === "color" ? "blue" : "" }}><i className="fa-solid fa-palette text-yellow-700" onClick={() => setisActive("color")}></i></li>
                     <li style={{ background: isActive === "table" ? "blue" : "" }}><i className="fa-solid fa-table-cells" onClick={() => setisActive("table")}></i></li>
                 </ul>
                

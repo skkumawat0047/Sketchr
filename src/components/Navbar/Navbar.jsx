@@ -9,7 +9,7 @@ const Navbar = () => {
         <li className="flex gap-3 [&>*]:px-4 [&>*]:py-2 [&>*]:rounded-md [&>span]:bg-gray-200 [&>*]:cursor-pointer">
           <span className="hover:bg-gray-300">Clear</span>
           <span className="hover:bg-gray-300">New Board</span>
-          <div className="hover:bg-sky-300" title="Save"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div className="hover:bg-sky-300" title="Save"><i className="fa-solid fa-cloud-arrow-up"></i></div>
         </li>
 
         <li className="flex gap-3 [&>span]:px-4 [&>span]:py-2 [&>span]:rounded-md [&>span]:bg-gray-200 [&>span]:cursor-pointer">
