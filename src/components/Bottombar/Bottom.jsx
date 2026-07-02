@@ -7,7 +7,7 @@ const Bottom = () => {
     const [isActive, setisActive] = useState("");
     return (
         <div>
-            <footer className='fixed w-full bottom-2 flex flex-col items-center gap-1'>
+            <footer className='fixed w-full bottom-2 flex flex-col items-center gap-1 z-10'>
                 {isActive === "pen" ? (<Pen />) : ""}
                 {isActive === "shape" ? (<Shape />) : ""}
                 {isActive === "color" ? (<Color />) : ""}
