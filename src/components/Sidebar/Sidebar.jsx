@@ -6,7 +6,7 @@ const Sidebar = () => {
   const [Upload,setUpload] = useState(false);
   return (
     <div>
-      <aside className='flex absolute left-1 w-fit h-[90%] gap-1 mt-1'>
+      <aside className='flex fixed left-1 top-20 w-fit h-[89%] gap-1'>
         <ul className='flex flex-col justify-center text-3xl opacity-80 gap-3 [&>li]:cursor-pointer [&>li]:active:bg-sky-500 [&>li]:rounded-md [&>li]:p-2'>
             {/* <li className='flex flex-col'><i class="fa-regular fa-alarm-clock"></i><span className='text-[13px]'>timer</span></li> */}
             <li className='flex flex-col' style={{background:Upload===true?"#3a98f7":""}} onClick={()=>setUpload(!Upload)}><i class="fa-solid fa-cloud-arrow-up"></i><span className='text-[10px]'>uploads</span></li>
