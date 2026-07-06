@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Eye, EyeOff, ArrowRight, Users, Infinity as InfinityIcon, Loader2, AlertCircle } from "lucide-react";
+import { Link,NavLink,useNavigate } from "react-router-dom";
 import SketchrLogo from "./SketchrLogo";
 
 /**
@@ -101,6 +102,7 @@ export default function LoginPage() {
       setSubmitError("It is only deomo.");
     }, 1400);
   };
+  const navigate = useNavigate();
 
   return (
     <div className="page">
@@ -541,8 +543,8 @@ export default function LoginPage() {
           Sketchr
         </div>
         <div className="nav-links">
-          <a href="#">Features</a>
-          <a href="#">How to Use</a>
+          <NavLink to="">Features</NavLink>
+          <NavLink to="">How to Use</NavLink>
         </div>
       </nav>
 
@@ -659,7 +661,7 @@ export default function LoginPage() {
                   <input type="checkbox" />
                   Remember me
                 </label>
-                <a href="#" className="forgot">Forgot password?</a>
+                <Link to="#" className="forgot">Forgot password?</Link>
               </div>
 
               <button type="submit" className="cta" disabled={submitting}>
@@ -686,7 +688,7 @@ export default function LoginPage() {
             </div>
 
             <p className="footer-text">
-              New to Sketchr? <a href="#">Sign up free</a>
+              New to Sketchr? <Link onClick={()=>navigate('/Login')}>Sign up free</Link>
             </p>
           </div>
         </div>
