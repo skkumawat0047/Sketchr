@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 
 const Sidebar = () => {
-  const [Time,setTime] = useState(0);
-  const [TimerActive,setTimerActive]=useState(true);
   const [images,setimages] = useState([]);
   const [Upload,setUpload] = useState(false);
 
@@ -20,18 +18,13 @@ const Sidebar = () => {
             {/* <li className='flex flex-col'><i className="fa-regular fa-alarm-clock"></i><span className='text-[13px]'>timer</span></li> */}
             <li className='flex flex-col' style={{background:Upload===true?"#3a98f7":""}} onClick={()=>setUpload(!Upload)}><i className="fa-solid fa-cloud-arrow-up"></i><span className='text-[10px]'>uploads</span></li>
         </ul>
-        {/* <ul className='flex flex-col w-24 h-full justify-center items-center text-3xl opacity-80 gap-3 border-2'>
-            <li className='flex flex-col border-2 border-black p-5'><i class="fa-regular fa-alarm-clock"></i><span className='text-[13px]'></span></li>
-            <input className='text-xl' type="time" defaultValue="03:11"/>
-            <button className='text-xl bg-sky-500 rounded-lg px-5 pb-1'>Start</button>
-        </ul> */}
         {Upload?(<div className="box border-2 rounded-md border-black flex flex-col bg-sky-200 items-center">
           <input className='img cursor-pointer p-3' type="file" accept='.png,.jpg,.jpeg,.gif,.webp' onChange={addimage}/>
           {/* <button className='bg-blue-500 w-fit px-7 py-1 rounded-lg active:bg-blue-700' onClick={()=>addimage}>Upload</button> */}
           <hr className='my-3 border-black w-full' />
           <div className="flex flex-wrap justify-center gap-1 w-80 overflow-y-auto">
             {images.map((img)=>(
-              <img src={img} className='cursor-pointer border-[3px] hover:border-black rounded-md' style={{"width":"95px"}} alt="image" />
+              <img src={img} className='cursor-pointer border-[3px] hover:border-black rounded-md' style={{"width":"95px"}} alt={Math.random(3,6)} />
             ))}
           </div>
         </div>):""
