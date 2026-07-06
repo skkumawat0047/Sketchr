@@ -1,25 +1,19 @@
-import './App.css';
-import Navbar from './components/Navbar/Navbar';
-import Bottom from './components/Bottombar/Bottom';
-import Sidebar from './components/Sidebar/Sidebar';
-import Login from './components/Login/Login';
-import Konva from './components/Konva/Konva';
-import Home from './components/Home/Home'
 import { useState } from 'react';
+import { Routes, Route } from 'react-router';
+import './App.css';
+import Login from './components/Login/Login';
+import Root from './components/Home/Root'
+import Home from './components/Home/Home'
+
 function App() {
-  // const [Home,useHome]=useState(true);
   return (
     <div className="App">
       <header className="App-header">
-        {/* {Home?(<>
-          <Navbar/>
-          <Sidebar/>
-          <Konva/>
-          <Bottom/>
-        </>
-        ):( */}
-          <Login/>
-        {/* )} */}
+        <Routes>
+          <Route path='/' element={<Root />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/Home" element={<Home />} />
+          </Routes>
       </header>
     </div>
   );
