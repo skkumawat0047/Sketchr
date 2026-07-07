@@ -4,7 +4,7 @@ const Navbar = () => {
   return (
     <nav className="w-full p-4 bg-cyan-300 fixed top-0 z-10">
       <ul className="flex justify-between items-center w-full list-none font-bold">
-        <li><i className="fa-solid fa-house text-2xl"></i>AlphaBoard</li>
+        <li><i className="fa-solid fa-house text-2xl"></i>Sketchr</li>
 
         <li className="flex gap-3 [&>*]:px-4 [&>*]:py-2 [&>*]:rounded-md [&>span]:bg-gray-200 [&>*]:cursor-pointer">
           <span className="hover:bg-gray-300">Clear</span>
