@@ -1,4 +1,4 @@
-# 🖍️ Whiteboard App
+# 🖍️ # Sketchr
 
 A simple collaborative whiteboard application built using React, tailwind Css, Node, Express, MongoDB, mongoose etc.
 
@@ -51,7 +51,7 @@ git clone <repository-url>
 Go to project directory
 
 ```bash
-cd collab-whiteboard
+cd Sketchr
 ```
 
 Install dependencies

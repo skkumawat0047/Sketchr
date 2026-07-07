@@ -35,7 +35,7 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
     // No error, so clear it and pretend login worked
     setError("");
     onLoginSuccess();
-    if(password=='sanjay2325' && email=='sk.kumawat0047@gmail.com'){
+    if(password==='sanjay2325' && email==='sk.kumawat0047@gmail.com'){
       navigate('/Dashboard');
     }
   }
