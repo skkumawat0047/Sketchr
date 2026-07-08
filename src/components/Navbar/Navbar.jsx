@@ -1,23 +1,56 @@
 import React from "react";
+import SketchrLogo from "../../page/Login/SketchrLogo";
+import { styles } from "../../page/Login/styles";
 
 const Navbar = () => {
   return (
-    <nav className="w-full p-4 bg-cyan-300 fixed top-0 z-10">
-      <ul className="flex justify-between items-center w-full list-none font-bold">
-        <li><i className="fa-solid fa-house text-2xl"></i>Sketchr</li>
+    <>
+      <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Architects+Daughter&family=Manrope:wght@400;500;600;700;800&display=swap');
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; }
+    `}</style>
 
-        <li className="flex gap-3 [&>*]:px-4 [&>*]:py-2 [&>*]:rounded-md [&>span]:bg-gray-200 [&>*]:cursor-pointer">
-          <span className="hover:bg-gray-300">Clear</span>
-          <span className="hover:bg-gray-300">New Board</span>
-          <div className="hover:bg-sky-300" title="Save"><i className="fa-solid fa-cloud-arrow-up"></i></div>
-        </li>
+      <nav
+        style={{
+          ...styles.nav,
+          position: "fixed",
+          top: 0,
+          width: "100%",
+          zIndex: 1000,
+        }}
+      >
+        <div style={styles.brand}>
+          <SketchrLogo size={30} />
+          Sketchr
+        </div>
 
-        <li className="flex gap-3 [&>span]:px-4 [&>span]:py-2 [&>span]:rounded-md [&>span]:bg-gray-200 [&>span]:cursor-pointer">
-          <span className="hover:bg-gray-300">Download</span>
-          <span className="hover:bg-gray-300">Share</span>
-        </li>
-      </ul>
-    </nav>
+
+        <div className="flex items-center gap-3 ml-auto">
+          <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer transition">
+            Clear
+          </button>
+
+          <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer transition">
+            New Board
+          </button>
+
+          <button
+            className="px-4 py-2 rounded-md bg-sky-500 hover:bg-sky-600 text-white cursor-pointer transition"
+            title="Save"
+          >
+            <i className="fa-solid fa-cloud-arrow-up"></i>
+          </button>
+
+          <button className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 cursor-pointer transition">
+            Share
+          </button>
+
+          <div style={styles.avatar}>A</div>
+        </div>
+      </nav>
+    </>
   );
 };
 

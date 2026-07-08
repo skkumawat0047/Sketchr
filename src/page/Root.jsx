@@ -1,429 +1,451 @@
 import { useNavigate } from "react-router-dom";
 import {
-  Users, Infinity as InfinityIcon, Shapes, Zap, Cloud,
-  ArrowRight, Star, MousePointer2, PenTool, Share2
+  Users, Shapes, ArrowRight, ArrowUpRight, Layers, MessageSquare
 } from "lucide-react";
 import SketchrLogo from "./Login/SketchrLogo";
 
 /**
  * Sketchr — Marketing / Landing Page
- * Sketch-paper world: cream dotted canvas, marker-red accent, hand-drawn borders.
- * Kept simple: only useNavigate from react-router. No scroll-listeners,
- * no IntersectionObserver, no manual smooth-scroll — just plain JSX + CSS.
+ * Split hero (text + mock board preview), alternating feature rows,
+ * horizontal step cards. Kept simple: plain JSX, no scroll/observer logic.
  */
 
 const COLORS = {
-  paper: "#FBF8F1",
-  ink: "#1F1B16",
-  coral: "#FF6B5E",
-  teal: "#4FB6B0",
-  yellow: "#F6C744",
-  pencil: "#8A8478",
-  line: "#E7E1D3",
+  paper: "#F7F2E9",
+  ink: "#22201B",
+  primary: "#F2994A",   // amber-orange accent
+  secondary: "#5B5FEF", // indigo accent
+  mint: "#3FBF9F",
+  sun: "#FFD166",
+  pencil: "#8B8478",
+  line: "#EAE3D3",
 };
 
-const FEATURES = [
-  {
-    icon: Users,
-    title: "Real-time collaboration",
-    text: "Work together with your team on the same board. Watch cursors move and shapes appear live.",
-    color: COLORS.teal,
-  },
-  {
-    icon: Shapes,
-    title: "Rich drawing tools",
-    text: "From perfect shapes to freehand scribbles and sticky notes — bring exactly what's in your head onto the board.",
-    color: COLORS.coral,
-  },
-  {
-    icon: InfinityIcon,
-    title: "Infinite canvas",
-    text: "No more running out of space. Pan, zoom, and stretch your ideas as far as they need to go.",
-    color: COLORS.yellow,
-  },
-  {
-    icon: Zap,
-    title: "Blazing fast",
-    text: "No lag, just flow. Even with thousands of shapes, the board stays smooth.",
-    color: "#B7A6FF",
-  },
-  {
-    icon: Cloud,
-    title: "Auto-saved, always",
-    text: "Every stroke is saved to the cloud instantly. Your board is always exactly as you left it.",
-    color: "#7FD1C4",
-  },
-  {
-    icon: Share2,
-    title: "One-click sharing",
-    text: "Create a link, send it, and you're working. Passwords and permissions in your control.",
-    color: "#FFB4A2",
-  },
-];
 
 const STEPS = [
-  { n: "01", title: "Create a new board", text: "A blank canvas ready in one click — no setup needed." },
-  { n: "02", title: "Invite your team", text: "Share a link and everyone can start drawing together." },
-  { n: "03", title: "Bring ideas to life", text: "From a rough scribble to a polished diagram, in real time." },
+  { n: "1", title: "Open a board", text: "One click, no template forced on you." },
+  { n: "2", title: "Share the link", text: "Anyone with it can join and draw instantly." },
+  { n: "3", title: "Build it out loud", text: "Ideas turn into diagrams as you talk." },
 ];
-
-const STATS = [
-  { value: "40K+", label: "boards created" },
-  { value: "120+", label: "countries using it" },
-  { value: "99.9%", label: "uptime, no interruptions" },
-];
-
-// Small reusable sticky-note component. Just plain props, no logic.
-function StickyNote({ rotate, top, left, right, bottom, color, children }) {
-  return (
-    <div
-      className="sticky-note"
-      style={{ top, left, right, bottom, background: color, transform: `rotate(${rotate}deg)` }}
-    >
-      {children}
-    </div>
-  );
-}
 
 export default function LandingPage() {
   const navigate = useNavigate();
-
+  
   return (
-    <div className="page">
+    <div style={styles.page}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Architects+Daughter&family=Manrope:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
+        body { margin: 0; }
+        `}</style>
 
-        .page {
-          width: 100%;
-          background-color: ${COLORS.paper};
-          background-image: radial-gradient(${COLORS.line} 1.4px, transparent 1.4px);
-          background-size: 22px 22px;
-          font-family: 'Inter', sans-serif;
-          color: ${COLORS.ink};
-          overflow-x: hidden;
-        }
-
-        .nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 18px 44px;
-          position: sticky;
-          top: 0;
-          z-index: 20;
-          background: rgba(251,248,241,0.92);
-          border-bottom: 1.5px solid ${COLORS.ink};
-        }
-
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 9px;
-          font-family: 'Caveat', cursive;
-          font-weight: 700;
-          font-size: 28px;
-        }
-
-        .nav-links { display: flex; gap: 28px; font-size: 14.5px; color: ${COLORS.pencil}; align-items: center; }
-        .nav-links a { text-decoration: none; color: inherit; cursor: pointer; }
-        .nav-links a:hover { color: ${COLORS.coral}; }
-
-        .nav-cta {
-          background: ${COLORS.ink};
-          color: ${COLORS.paper};
-          border: 1.5px solid ${COLORS.ink};
-          font-family: 'Kalam', cursive;
-          font-size: 14.5px;
-          padding: 8px 18px;
-          cursor: pointer;
-        }
-        .nav-cta:hover { background: ${COLORS.coral}; color: ${COLORS.ink}; }
-
-        @media (max-width: 680px) { .nav-links a:not(.nav-cta) { display: none; } }
-
-        /* HERO */
-        .hero {
-          position: relative;
-          padding: 70px 24px 110px;
-          text-align: center;
-        }
-
-        .sticky-note {
-          position: absolute;
-          width: 132px;
-          padding: 14px 14px 20px;
-          font-family: 'Kalam', cursive;
-          font-size: 13px;
-          line-height: 1.35;
-          color: ${COLORS.ink};
-          box-shadow: 3px 6px 14px rgba(31,27,22,0.15);
-        }
-        @media (max-width: 900px) { .sticky-note { display: none; } }
-
-        .eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          font-family: 'Kalam', cursive;
-          font-size: 14px;
-          border: 1.5px dashed ${COLORS.ink};
-          padding: 6px 14px;
-          margin-bottom: 26px;
-          background: #fff;
-        }
-
-        .hero h1 {
-          font-family: 'Caveat', cursive;
-          font-weight: 700;
-          font-size: clamp(42px, 7vw, 74px);
-          line-height: 1.05;
-          margin: 0 auto 20px;
-          max-width: 780px;
-        }
-
-        .underline-svg { position: relative; display: inline-block; }
-        .underline-svg svg { position: absolute; left: 0; right: 0; bottom: -10px; width: 100%; height: 16px; }
-        .underline-svg path { fill: none; stroke: ${COLORS.yellow}; stroke-width: 8; stroke-linecap: round; }
-
-        .hero .lede {
-          max-width: 560px;
-          margin: 0 auto 34px;
-          color: ${COLORS.pencil};
-          font-size: 16.5px;
-          line-height: 1.6;
-        }
-
-        .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
-
-        .btn-primary {
-          background: ${COLORS.coral};
-          color: ${COLORS.ink};
-          border: 1.5px solid ${COLORS.ink};
-          font-family: 'Kalam', cursive;
-          font-size: 17px;
-          padding: 14px 26px;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          cursor: pointer;
-          box-shadow: 4px 4px 0 rgba(31,27,22,0.9);
-        }
-        .btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(31,27,22,0.9); }
-
-        .btn-ghost {
-          background: transparent;
-          border: 1.5px dashed ${COLORS.ink};
-          color: ${COLORS.ink};
-          font-family: 'Kalam', cursive;
-          font-size: 17px;
-          padding: 14px 26px;
-          cursor: pointer;
-        }
-        .btn-ghost:hover { background: #fff; }
-
-        .trust-line { font-size: 13px; color: ${COLORS.pencil}; font-family: 'Kalam', cursive; }
-        .stars { color: ${COLORS.yellow}; display:inline-flex; gap:2px; vertical-align: -2px; margin-right:6px; }
-
-        .stats {
-          display: flex; justify-content: center; gap: 60px; flex-wrap: wrap;
-          padding: 30px 24px;
-          border-top: 1.5px solid ${COLORS.ink};
-          border-bottom: 1.5px solid ${COLORS.ink};
-          background: #fff;
-        }
-        .stat { text-align: center; }
-        .stat .value { font-family: 'Caveat', cursive; font-weight: 700; font-size: 40px; color: ${COLORS.coral}; line-height: 1; }
-        .stat .label { font-size: 13px; color: ${COLORS.pencil}; margin-top: 4px; font-family: 'Kalam', cursive; }
-
-        .section { padding: 90px 24px; max-width: 1080px; margin: 0 auto; }
-        .section-head { text-align: center; margin-bottom: 50px; }
-        .section-head h2 { font-family: 'Caveat', cursive; font-weight: 700; font-size: clamp(32px, 5vw, 46px); margin: 0 0 10px; }
-        .section-head p { color: ${COLORS.pencil}; font-size: 15px; }
-
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
-        .feature-card {
-          background: #fff;
-          border: 1.5px solid ${COLORS.ink};
-          padding: 26px 24px;
-          box-shadow: 5px 5px 0 rgba(31,27,22,0.85);
-        }
-        .feature-card:hover { transform: translate(-3px,-3px); box-shadow: 8px 8px 0 rgba(31,27,22,0.85); }
-        .feature-icon {
-          width: 44px; height: 44px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          margin-bottom: 16px; border: 1.5px solid ${COLORS.ink};
-        }
-        .feature-card h3 { font-family: 'Kalam', cursive; font-size: 19px; margin: 0 0 8px; }
-        .feature-card p { font-size: 14px; color: ${COLORS.pencil}; line-height: 1.55; margin: 0; }
-
-        .steps { display: flex; flex-direction: column; }
-        .step-row { display: flex; align-items: flex-start; gap: 24px; padding: 28px 0; border-bottom: 1.5px dashed ${COLORS.line}; }
-        .step-row:last-child { border-bottom: none; }
-        .step-num { font-family: 'Caveat', cursive; font-weight: 700; font-size: 46px; color: ${COLORS.coral}; width: 70px; flex-shrink: 0; }
-        .step-row h3 { font-family: 'Kalam', cursive; font-size: 19px; margin: 4px 0 6px; }
-        .step-row p { font-size: 14.5px; color: ${COLORS.pencil}; margin: 0; max-width: 500px; }
-
-        .why {
-          background: ${COLORS.ink};
-          color: ${COLORS.paper};
-          padding: 70px 30px;
-          text-align: center;
-        }
-        .why h2 { font-family: 'Caveat', cursive; font-weight: 700; font-size: clamp(30px, 5vw, 44px); margin: 0 0 14px; }
-        .why p { max-width: 560px; margin: 0 auto 30px; color: #D8D2C4; font-size: 15.5px; line-height: 1.6; }
-        .why-points { display: flex; gap: 34px; justify-content: center; flex-wrap: wrap; margin-bottom: 34px; }
-        .why-point { display: flex; align-items: center; gap: 8px; font-family: 'Kalam', cursive; font-size: 14.5px; }
-        .why-point .dot { width: 8px; height: 8px; border-radius: 50%; background: ${COLORS.coral}; }
-        .why .btn-primary { background: ${COLORS.coral}; color: ${COLORS.ink}; border-color: ${COLORS.paper}; }
-
-        .final-cta { text-align: center; padding: 90px 24px 70px; }
-        .final-cta h2 { font-family: 'Caveat', cursive; font-weight: 700; font-size: clamp(30px, 5vw, 44px); margin: 0 0 16px; }
-        .final-cta p { color: ${COLORS.pencil}; margin: 0 0 28px; }
-
-        .foot { text-align: center; padding: 24px; font-size: 13px; color: ${COLORS.pencil}; border-top: 1.5px solid ${COLORS.line}; }
-      `}</style>
-
-      {/* NAVBAR */}
-      <nav className="nav">
-        <div className="brand">
-          <SketchrLogo size={32} />
+      {/* NAV */}
+      <nav style={styles.nav}>
+        <div style={styles.brand}>
+          <SketchrLogo size={30} />
           Sketchr
         </div>
-        <div className="nav-links">
-          <a href="#features">Features</a>
-          <a href="#how">How to Use</a>
-          <a onClick={() => navigate("/Login")} className="nav-cta">Log in</a>
+        <div style={styles.navLinks}>
+          <a href="#features" style={styles.navLink}>Features</a>
+          <a href="#how" style={styles.navLink}>How it works</a>
+          <button style={styles.navCta} onClick={() => navigate("/Login")}>Log in</button>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="hero">
-        <StickyNote top="8%" left="4%" rotate={-8} color={COLORS.yellow}>
-          <MousePointer2 size={14} style={{ marginBottom: 4 }} /> live cursors, real people
-        </StickyNote>
-        <StickyNote top="14%" right="5%" rotate={7} color="#CFEFEC">
-          <InfinityIcon size={14} style={{ marginBottom: 4 }} /> space that never runs out
-        </StickyNote>
-        <StickyNote bottom="6%" left="7%" rotate={5} color="#FFD9D3">
-          <PenTool size={14} style={{ marginBottom: 4 }} /> grab a marker, get going
-        </StickyNote>
-
-        <div className="eyebrow"><SketchrLogo size={16} /> whiteboarding, reimagined</div>
-
-        <h1>
-          Where the idea in your head{" "}
-          <span className="underline-svg">
-            hits the board
-            <svg viewBox="0 0 260 16" preserveAspectRatio="none">
-              <path d="M4,10 C60,2 120,14 180,6 C210,2 235,9 256,7" />
-            </svg>
-          </span>{" "}
-          first.
-        </h1>
-
-        <p className="lede">
-          Sketchr is an infinite whiteboard where brainstorming, diagramming, and team
-          collaboration happen in one place, in real time. No setup, no learning curve.
-        </p>
-
-        <div className="hero-ctas">
-          <button className="btn-primary" onClick={() => navigate("/Home")}>
-            Start for free <ArrowRight size={17} />
-          </button>
-          <button className="btn-ghost">View live demo</button>
+      {/* SPLIT HERO */}
+      <section style={styles.hero}>
+        <div style={styles.heroLeft}>
+          <div style={styles.eyebrow}>a whiteboard that keeps up with your team</div>
+          <h1 style={styles.heroTitle}>
+            Turn scattered thoughts into a board everyone gets.
+          </h1>
+          <p style={styles.heroText}>
+            Sketchr is where your team sketches, plans, and argues about sticky-note
+            placement — all in real time, all in one place.
+          </p>
+          <div style={styles.heroButtons}>
+            <button style={styles.primaryButton} onClick={() => navigate("/Home")}>
+              Open a board <ArrowRight size={17} />
+            </button>
+            <button style={styles.ghostButton} onClick={() => navigate("/Login")}>
+              I already have an account
+            </button>
+          </div>
+          <div style={styles.statRow}>
+            <div><strong>40K+</strong> boards</div>
+            <div><strong>120+</strong> countries</div>
+            <div><strong>99.9%</strong> uptime</div>
+          </div>
         </div>
 
-        <div className="trust-line">
-          <span className="stars">
-            <Star size={13} fill="currentColor" /><Star size={13} fill="currentColor" />
-            <Star size={13} fill="currentColor" /><Star size={13} fill="currentColor" />
-            <Star size={13} fill="currentColor" />
-          </span>
-          40,000+ teams already made this their primary whiteboard
+        {/* Hand-drawn mock board preview instead of floating sticky notes */}
+        <div style={styles.heroRight}>
+          <div style={styles.mockBoard}>
+            <div style={styles.mockDot} />
+            <div style={styles.mockDot2} />
+            <svg width="100%" height="140" viewBox="0 0 300 140">
+              <path d="M10,100 C60,20 110,120 160,50 C200,0 250,80 290,40"
+                fill="none" stroke={COLORS.primary} strokeWidth="4" strokeLinecap="round" />
+            </svg>
+            <div style={styles.mockNote}>ship it 🚀</div>
+            <div style={styles.mockShape} />
+          </div>
         </div>
       </section>
 
-      {/* STATS */}
-      <div className="stats">
-        {STATS.map((s) => (
-          <div className="stat" key={s.label}>
-            <div className="value">{s.value}</div>
-            <div className="label">{s.label}</div>
+      {/* FEATURES — alternating rows */}
+      <section id="features" style={styles.section}>
+        <h2 style={styles.sectionTitle}>Built for how teams actually think</h2>
+        {FEATURES.map((f, i) => (
+          <div
+          key={f.title}
+            style={{
+              ...styles.featureRow,
+              flexDirection: i % 2 === 0 ? "row" : "row-reverse",
+            }}
+          >
+            <div style={styles.featureText}>
+              <div style={{ ...styles.featureIcon, background: f.color }}>
+                <f.icon size={22} color={COLORS.ink} />
+              </div>
+              <h3 style={styles.featureTitle}>{f.title}</h3>
+              <p style={styles.featureBody}>{f.text}</p>
+            </div>
+            <div style={{ ...styles.featureBlock, background: `${f.color}33` }}>
+              {f.preview}
+            </div>
           </div>
         ))}
-      </div>
-
-      {/* FEATURES */}
-      <section className="section" id="features">
-        <div className="section-head">
-          <h2>Everything, in one board.</h2>
-          <p>Simple tools, taped together into one beautiful whiteboard.</p>
-        </div>
-        <div className="feature-grid">
-          {FEATURES.map((f) => (
-            <div className="feature-card" key={f.title}>
-              <div className="feature-icon" style={{ background: f.color }}>
-                <f.icon size={20} color={COLORS.ink} />
-              </div>
-              <h3>{f.title}</h3>
-              <p>{f.text}</p>
-            </div>
-          ))}
-        </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="section" id="how">
-        <div className="section-head">
-          <h2>How it works</h2>
-          <p>Three steps, and your team is drawing live.</p>
-        </div>
-        <div className="steps">
+      {/* HOW IT WORKS — horizontal cards */}
+      <section id="how" style={{ ...styles.section, background: "#fff" }}>
+        <h2 style={styles.sectionTitle}>Three steps. That's it.</h2>
+        <div style={styles.stepGrid}>
           {STEPS.map((s) => (
-            <div className="step-row" key={s.n}>
-              <div className="step-num">{s.n}</div>
-              <div>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-              </div>
+            <div key={s.n} style={styles.stepCard}>
+              <div style={styles.stepNumber}>{s.n}</div>
+              <h3 style={styles.featureTitle}>{s.title}</h3>
+              <p style={styles.featureBody}>{s.text}</p>
             </div>
           ))}
         </div>
-      </section>
-
-      {/* WHY SKETCHR */}
-      <section className="why">
-        <h2>Why Sketchr?</h2>
-        <p>
-          Other tools are either boring or overcomplicated. Sketchr solves both problems —
-          simple, yet powerful.
-        </p>
-        <div className="why-points">
-          <div className="why-point"><span className="dot" /> No setup, no learning curve</div>
-          <div className="why-point"><span className="dot" /> Smooth on every device</div>
-          <div className="why-point"><span className="dot" /> Your data, always safe and synced</div>
-          <div className="why-point"><span className="dot" /> Full power, even on the free plan</div>
-        </div>
-        <button className="btn-primary" onClick={() => navigate("/Login")}>
-          Try it now, completely free <ArrowRight size={17} />
-        </button>
       </section>
 
       {/* FINAL CTA */}
-      <section className="final-cta">
-        <h2>Your first board, in two minutes.</h2>
-        <p>Sign up, create a board, invite your team — that's all it takes.</p>
-        <button className="btn-primary" onClick={() => navigate("/Login")}>
-          Create a free account <ArrowRight size={17} />
+      <section style={styles.finalCta}>
+        <h2 style={styles.finalTitle}>Stop explaining the idea. Draw it.</h2>
+        <button style={styles.primaryButton} onClick={() => navigate("/Login")}>
+          Start for free <ArrowRight size={17} />
         </button>
       </section>
 
-      <footer className="foot">
-        © {new Date().getFullYear()} Sketchr — where great ideas get scribbled first.
+      <footer style={styles.footer}>
+        Sketchr — made for the whiteboard-covered wall you wish you had.
       </footer>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    width: "100%",
+    minHeight: "100vh",
+    backgroundColor: COLORS.paper,
+    fontFamily: "'Manrope', sans-serif",
+    color: COLORS.ink,
+  },
+  nav: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px 44px",
+    borderBottom: `1.5px solid ${COLORS.ink}`,
+    background: "#fff",
+  },
+  brand: {
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "28px",
+  },
+  navLinks: { display: "flex", alignItems: "center", gap: "26px" },
+  navLink: { textDecoration: "none", color: COLORS.pencil, fontSize: "14.5px" },
+  navCta: {
+    background: COLORS.ink,
+    color: "#fff",
+    border: "none",
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "14px",
+    padding: "9px 18px",
+    cursor: "pointer",
+  },
+  hero: {
+    display: "flex",
+    alignItems: "center",
+    gap: "40px",
+    padding: "70px 44px",
+    flexWrap: "wrap",
+  },
+  heroLeft: { flex: "1 1 420px" },
+  heroRight: { flex: "1 1 320px", display: "flex", justifyContent: "center" },
+  eyebrow: {
+    display: "inline-block",
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "13px",
+    color: COLORS.secondary,
+    border: `1.5px dashed ${COLORS.secondary}`,
+    padding: "6px 14px",
+    marginBottom: "20px",
+  },
+  heroTitle: {
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "50px",
+    lineHeight: 1.1,
+    margin: "0 0 18px",
+  },
+  heroText: {
+    fontSize: "16px",
+    color: COLORS.pencil,
+    lineHeight: 1.6,
+    maxWidth: "460px",
+    marginBottom: "28px",
+  },
+  heroButtons: { display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "26px" },
+  primaryButton: {
+    background: COLORS.primary,
+    color: COLORS.ink,
+    border: `1.5px solid ${COLORS.ink}`,
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "16px",
+    padding: "13px 24px",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    cursor: "pointer",
+    boxShadow: "4px 4px 0 rgba(34,32,27,0.85)",
+  },
+  ghostButton: {
+    background: "transparent",
+    border: "none",
+    color: COLORS.ink,
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "15px",
+    textDecoration: "underline",
+    cursor: "pointer",
+  },
+  statRow: {
+    display: "flex",
+    gap: "26px",
+    fontSize: "13.5px",
+    color: COLORS.pencil,
+    flexWrap: "wrap",
+  },
+  mockBoard: {
+    position: "relative",
+    width: "320px",
+    height: "260px",
+    background: "#fff",
+    border: `1.5px solid ${COLORS.ink}`,
+    padding: "20px",
+    boxShadow: "6px 6px 0 rgba(34,32,27,0.85)",
+  },
+  mockDot: {
+    position: "absolute", top: "14px", left: "14px",
+    width: "10px", height: "10px", borderRadius: "50%", background: COLORS.primary,
+  },
+  mockDot2: {
+    position: "absolute", top: "14px", left: "30px",
+    width: "10px", height: "10px", borderRadius: "50%", background: COLORS.mint,
+  },
+  mockNote: {
+    position: "absolute",
+    bottom: "50px",
+    left: "24px",
+    background: COLORS.sun,
+    padding: "8px 12px",
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "13px",
+    transform: "rotate(-4deg)",
+    boxShadow: "2px 3px 6px rgba(0,0,0,0.15)",
+  },
+  mockShape: {
+    position: "absolute",
+    bottom: "24px",
+    right: "24px",
+    width: "50px",
+    height: "36px",
+    border: `2.5px solid ${COLORS.secondary}`,
+    borderRadius: "6px",
+  },
+  section: { padding: "80px 44px", maxWidth: "1000px", margin: "0 auto" },
+  sectionTitle: {
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "38px",
+    textAlign: "center",
+    marginBottom: "50px",
+  },
+  featureRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "40px",
+    marginBottom: "50px",
+    flexWrap: "wrap",
+  },
+  featureText: { flex: "1 1 300px" },
+  featureIcon: {
+    width: "44px", height: "44px", borderRadius: "50%",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    marginBottom: "14px", border: `1.5px solid ${COLORS.ink}`,
+  },
+  featureTitle: { fontFamily: "'Architects Daughter', cursive", fontSize: "19px", margin: "0 0 8px" },
+  featureBody: { fontSize: "14.5px", color: COLORS.pencil, lineHeight: 1.6, maxWidth: "380px" },
+  featureBlock: {
+    flex: "1 1 260px",
+    height: "160px",
+    border: `1.5px dashed ${COLORS.ink}`,
+    padding: "16px",
+    boxSizing: "border-box",
+    overflow: "hidden",
+  },
+  // Small circle with a letter in it — used to represent a person's cursor
+  cursorDot: {
+    position: "absolute",
+    width: "34px",
+    height: "34px",
+    borderRadius: "50%",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "13px",
+    border: `2px solid ${COLORS.ink}`,
+  },
+  // Row that holds the circle / square / triangle shapes
+  shapeRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "20px",
+    height: "100%",
+  },
+  // 4x4 grid of dots, used inside the "infinite canvas" preview
+  dotGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "14px",
+    width: "100px",
+    margin: "0 auto",
+    paddingTop: "20px",
+  },
+  gridDot: {
+    width: "6px",
+    height: "6px",
+    borderRadius: "50%",
+    background: COLORS.ink,
+    opacity: 0.5,
+  },
+  // Speech-bubble box used in the "comments" feature preview
+  speechBubble: {
+    background: "#fff",
+    border: `1.5px solid ${COLORS.ink}`,
+    borderRadius: "14px",
+    padding: "10px 16px",
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "14px",
+    position: "relative",
+  },
+  stepGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "24px",
+  },
+  stepCard: {
+    background: COLORS.paper,
+    border: `1.5px solid ${COLORS.ink}`,
+    padding: "26px",
+  },
+  stepNumber: {
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "44px",
+    color: COLORS.primary,
+    marginBottom: "8px",
+  },
+  finalCta: { textAlign: "center", padding: "90px 24px" },
+  finalTitle: { fontFamily: "'Gochi Hand', cursive", fontSize: "40px", marginBottom: "24px" },
+  footer: {
+    textAlign: "center",
+    padding: "24px",
+    fontSize: "13px",
+    color: COLORS.pencil,
+    borderTop: `1.5px solid ${COLORS.line}`,
+  },
+};
+  const FEATURES = [
+    {
+      icon: Users,
+      title: "Draw together, live",
+      text: "Everyone's cursor, everyone's strokes, on the same board — no refreshing, no waiting.",
+      color: COLORS.mint,
+      // Three little "cursor" dots to represent multiple people on one board
+      preview: (
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <div style={{ ...styles.cursorDot, top: "30%", left: "25%", background: COLORS.primary }}>A</div>
+          <div style={{ ...styles.cursorDot, top: "55%", left: "50%", background: COLORS.secondary }}>B</div>
+          <div style={{ ...styles.cursorDot, top: "35%", left: "70%", background: COLORS.sun }}>C</div>
+        </div>
+      ),
+    },
+    {
+      icon: Shapes,
+      title: "Shapes that keep up with you",
+      text: "Freehand, arrows, sticky notes, frames — reach for whatever your idea needs.",
+      color: COLORS.primary,
+      // A circle, a square, and a triangle to represent the drawing toolkit
+      preview: (
+        <div style={styles.shapeRow}>
+          <div style={{ width: 46, height: 46, borderRadius: "50%", border: `3px solid ${COLORS.ink}` }} />
+          <div style={{ width: 46, height: 46, border: `3px solid ${COLORS.ink}` }} />
+          <div style={{
+            width: 0, height: 0,
+            borderLeft: "23px solid transparent",
+            borderRight: "23px solid transparent",
+            borderBottom: `40px solid ${COLORS.ink}`,
+          }} />
+        </div>
+      ),
+    },
+    {
+      icon: Layers,
+      title: "A canvas with no edges",
+      text: "Zoom out for the big picture, zoom in for the detail. The board grows with you.",
+      color: COLORS.secondary,
+      // A dot grid with corner arrows to suggest an endless, zoomable canvas
+      preview: (
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <div style={styles.dotGrid}>
+            {Array.from({ length: 16 }).map((_, i) => (
+              <div key={i} style={styles.gridDot} />
+            ))}
+          </div>
+          <ArrowUpRight size={18} style={{ position: "absolute", top: 6, right: 6 }} />
+          <ArrowUpRight size={18} style={{ position: "absolute", bottom: 6, left: 6, transform: "rotate(180deg)" }} />
+        </div>
+      ),
+    },
+    {
+      icon: MessageSquare,
+      title: "Comments, right on the board",
+      text: "Leave a note next to the thing it's about, tag a teammate, keep moving.",
+      color: COLORS.sun,
+      // A speech-bubble shape to represent leaving a comment on the board
+      preview: (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+          <div style={styles.speechBubble}>Nice one!</div>
+        </div>
+      ),
+    },
+  ];

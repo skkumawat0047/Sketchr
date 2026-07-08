@@ -4,25 +4,22 @@ import SketchrLogo from "./SketchrLogo";
 import { useNavigate } from "react-router-dom";
 
 const COLORS = {
-  paper: "#FBF8F1",
-  ink: "#1F1B16",
-  coral: "#FF6B5E",
-  pencil: "#8A8478",
+  paper: "#F7F2E9",
+  ink: "#22201B",
+  primary: "#F2994A",
+  secondary: "#5B5FEF",
+  pencil: "#8B8478",
 };
 
-// onLoginSuccess and onGoToRegister are simple functions passed from App.jsx
 export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
-  // Basic form state — just plain useState, nothing fancy
-  const navigate = useNavigate()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  
+  const navigate = useNavigate()
+
   function handleSubmit(e) {
-    e.preventDefault(); // stop the page from refreshing
-    
-    // Very simple validation — easy to follow
+    e.preventDefault();
     if (!email || !password) {
       setError("Please fill in both fields.");
       return;
@@ -31,28 +28,40 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
       setError("Password must be at least 6 characters.");
       return;
     }
-
-    // No error, so clear it and pretend login worked
     setError("");
-    onLoginSuccess();
-    if(password==='sanjay2325' && email==='sk.kumawat0047@gmail.com'){
-      navigate('/Dashboard');
+    if(email==="sk.kumawat0047@gmail.com" && password==="sanjay2325"){
+      navigate('/Dashboard')
     }
+    onLoginSuccess();
   }
 
   return (
     <div style={styles.page}>
-      <nav style={styles.nav}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Architects+Daughter&family=Manrope:wght@400;500;600;700;800&display=swap');`}</style>
+
+      {/* LEFT — brand panel */}
+      <div style={styles.brandPanel}>
         <div style={styles.brand}>
-          <SketchrLogo size={28} />
+          <SketchrLogo size={30} />
           Sketchr
         </div>
-      </nav>
+        <div style={styles.brandMid}>
+          <p style={styles.quote}>
+            "We stopped scheduling meetings just to look at the same board."
+          </p>
+          <p style={styles.quoteBy}>— a team that switched to Sketchr</p>
+        </div>
+        <svg width="100%" height="80" viewBox="0 0 300 80" style={{ opacity: 0.6 }}>
+          <path d="M10,50 C60,10 100,70 150,30 C200,-10 250,60 290,20"
+            fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+      </div>
 
-      <div style={styles.stage}>
-        <div style={styles.card}>
-          <h1 style={styles.title}>Welcome back</h1>
-          <p style={styles.subtitle}>Log in to get back to your boards.</p>
+      {/* RIGHT — form panel */}
+      <div style={styles.formPanel}>
+        <div style={styles.formBox}>
+          <h1 style={styles.title}>Log back in</h1>
+          <p style={styles.subtitle}>Your boards missed you.</p>
 
           {error && <div style={styles.errorBox}>{error}</div>}
 
@@ -61,7 +70,7 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
             <input
               id="email"
               type="email"
-              placeholder="you@studio.com"
+              placeholder="sk.kumawat0047@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={styles.input}
@@ -72,7 +81,7 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="sanjay2325"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ ...styles.input, paddingRight: "40px" }}
@@ -87,14 +96,14 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
             </div>
 
             <button type="submit" style={styles.submitButton}>
-              Log in <ArrowRight size={17} />
+              Continue <ArrowRight size={17} />
             </button>
           </form>
 
           <p style={styles.footerText}>
-            New to Sketchr?{" "}
+            First time here?{" "}
             <span onClick={()=>navigate('/Register')} style={styles.link}>
-              Sign up free
+              Create an account
             </span>
           </p>
         </div>
@@ -106,73 +115,74 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
 const styles = {
   page: {
     minHeight: "100vh",
-    backgroundColor: COLORS.paper,
-    fontFamily: "'Inter', sans-serif",
+    display: "flex",
+    fontFamily: "'Manrope', sans-serif",
     color: COLORS.ink,
   },
-  nav: {
-    padding: "20px 40px",
+  brandPanel: {
+    flex: "1 1 40%",
+    background: COLORS.secondary,
+    color: "#fff",
+    padding: "40px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    minHeight: "100vh",
   },
   brand: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    fontFamily: "'Caveat', cursive",
-    fontWeight: 700,
-    fontSize: "26px",
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "28px",
   },
-  stage: {
+  brandMid: { maxWidth: "340px" },
+  quote: {
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "20px",
+    lineHeight: 1.5,
+  },
+  quoteBy: { fontSize: "13px", opacity: 0.8 },
+  formPanel: {
+    flex: "1 1 60%",
+    background: COLORS.paper,
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
     padding: "40px 20px",
   },
-  card: {
-    background: "#fff",
-    border: `1.5px solid ${COLORS.ink}`,
-    padding: "36px",
-    width: "380px",
-    maxWidth: "100%",
-    boxShadow: `6px 6px 0 rgba(31,27,22,0.9)`,
-  },
+  formBox: { width: "360px", maxWidth: "100%" },
   title: {
-    fontFamily: "'Caveat', cursive",
-    fontWeight: 700,
-    fontSize: "36px",
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "38px",
     margin: "0 0 4px",
   },
-  subtitle: {
-    color: COLORS.pencil,
-    fontSize: "14px",
-    marginBottom: "20px",
-  },
+  subtitle: { color: COLORS.pencil, fontSize: "14px", marginBottom: "24px" },
   errorBox: {
     background: "#FFF1EF",
-    border: `1.5px solid ${COLORS.coral}`,
+    border: `1.5px solid ${COLORS.primary}`,
     padding: "10px 12px",
     fontSize: "13px",
     marginBottom: "16px",
-    fontFamily: "'Kalam', cursive",
+    fontFamily: "'Architects Daughter', cursive",
   },
   label: {
     display: "block",
-    fontFamily: "'Kalam', cursive",
+    fontFamily: "'Architects Daughter', cursive",
     fontSize: "13px",
     marginBottom: "6px",
     marginTop: "14px",
   },
   input: {
     width: "100%",
-    padding: "10px 12px",
+    padding: "11px 12px",
     fontSize: "14px",
     border: `1.5px solid ${COLORS.ink}`,
-    background: COLORS.paper,
+    background: "#fff",
     outline: "none",
     boxSizing: "border-box",
   },
-  passwordRow: {
-    position: "relative",
-  },
+  passwordRow: { position: "relative" },
   eyeButton: {
     position: "absolute",
     right: "10px",
@@ -187,10 +197,10 @@ const styles = {
     width: "100%",
     marginTop: "22px",
     padding: "12px",
-    background: COLORS.ink,
-    color: COLORS.paper,
+    background: COLORS.primary,
+    color: COLORS.ink,
     border: `1.5px solid ${COLORS.ink}`,
-    fontFamily: "'Kalam', cursive",
+    fontFamily: "'Architects Daughter', cursive",
     fontSize: "16px",
     display: "flex",
     alignItems: "center",
@@ -205,8 +215,8 @@ const styles = {
     marginTop: "20px",
   },
   link: {
-    color: COLORS.coral,
-    fontWeight: 600,
+    color: COLORS.secondary,
+    fontWeight: 700,
     cursor: "pointer",
   },
 };

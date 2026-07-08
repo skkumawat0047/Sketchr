@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import SketchrLogo from "./SketchrLogo";
 import { useNavigate } from "react-router-dom";
-
 const COLORS = {
-  paper: "#FBF8F1",
-  ink: "#1F1B16",
-  coral: "#FF6B5E",
-  pencil: "#8A8478",
+  paper: "#F7F2E9",
+  ink: "#22201B",
+  primary: "#F2994A",
+  secondary: "#5B5FEF",
+  pencil: "#8B8478",
 };
 
 export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
@@ -21,8 +21,6 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    // Simple step-by-step validation, easy to read top to bottom
     if (!name || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
       return;
@@ -35,24 +33,37 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
       setError("Passwords do not match.");
       return;
     }
-
     setError("");
     onRegisterSuccess();
   }
 
   return (
     <div style={styles.page}>
-      <nav style={styles.nav}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Architects+Daughter&family=Manrope:wght@400;500;600;700;800&display=swap');`}</style>
+
+      {/* LEFT — brand panel */}
+      <div style={styles.brandPanel}>
         <div style={styles.brand}>
-          <SketchrLogo size={28} />
+          <SketchrLogo size={30} />
           Sketchr
         </div>
-      </nav>
+        <div style={styles.brandMid}>
+          <p style={styles.quote}>
+            "Your first board takes about ninety seconds to set up."
+          </p>
+          <p style={styles.quoteBy}>— genuinely, that's the whole onboarding</p>
+        </div>
+        <svg width="100%" height="80" viewBox="0 0 300 80" style={{ opacity: 0.6 }}>
+          <path d="M10,20 C60,70 100,10 150,50 C200,90 250,20 290,60"
+            fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+      </div>
 
-      <div style={styles.stage}>
-        <div style={styles.card}>
-          <h1 style={styles.title}>Create your account</h1>
-          <p style={styles.subtitle}>Start sketching your ideas in minutes.</p>
+      {/* RIGHT — form panel */}
+      <div style={styles.formPanel}>
+        <div style={styles.formBox}>
+          <h1 style={styles.title}>Get your board</h1>
+          <p style={styles.subtitle}>Free plan, no credit card.</p>
 
           {error && <div style={styles.errorBox}>{error}</div>}
 
@@ -107,13 +118,13 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
             />
 
             <button type="submit" style={styles.submitButton}>
-              Sign up <ArrowRight size={17} />
+              Create account <ArrowRight size={17} />
             </button>
           </form>
 
           <p style={styles.footerText}>
-            Already have an account?{" "}
-            <span onClick={()=>navigate('/login')} style={styles.link}>
+            Already sketching with us?{" "}
+            <span onClick={()=>navigate('/Login')} style={styles.link}>
               Log in
             </span>
           </p>
@@ -126,73 +137,74 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
 const styles = {
   page: {
     minHeight: "100vh",
-    backgroundColor: COLORS.paper,
-    fontFamily: "'Inter', sans-serif",
+    display: "flex",
+    fontFamily: "'Manrope', sans-serif",
     color: COLORS.ink,
   },
-  nav: {
-    padding: "20px 40px",
+  brandPanel: {
+    flex: "1 1 40%",
+    background: COLORS.primary,
+    color: COLORS.ink,
+    padding: "40px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    minHeight: "100vh",
   },
   brand: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    fontFamily: "'Caveat', cursive",
-    fontWeight: 700,
-    fontSize: "26px",
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "28px",
   },
-  stage: {
+  brandMid: { maxWidth: "340px" },
+  quote: {
+    fontFamily: "'Architects Daughter', cursive",
+    fontSize: "20px",
+    lineHeight: 1.5,
+  },
+  quoteBy: { fontSize: "13px", opacity: 0.75 },
+  formPanel: {
+    flex: "1 1 60%",
+    background: COLORS.paper,
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
-    padding: "10px 20px",
+    justifyContent: "center",
+    padding: "40px 20px",
   },
-  card: {
-    background: "#fff",
-    border: `1.5px solid ${COLORS.ink}`,
-    padding: "36px",
-    width: "380px",
-    maxWidth: "100%",
-    boxShadow: `6px 6px 0 rgba(31,27,22,0.9)`,
-  },
+  formBox: { width: "360px", maxWidth: "100%" },
   title: {
-    fontFamily: "'Caveat', cursive",
-    fontWeight: 700,
-    fontSize: "36px",
+    fontFamily: "'Gochi Hand', cursive",
+    fontSize: "38px",
     margin: "0 0 4px",
   },
-  subtitle: {
-    color: COLORS.pencil,
-    fontSize: "14px",
-    marginBottom: "20px",
-  },
+  subtitle: { color: COLORS.pencil, fontSize: "14px", marginBottom: "24px" },
   errorBox: {
     background: "#FFF1EF",
-    border: `1.5px solid ${COLORS.coral}`,
+    border: `1.5px solid ${COLORS.primary}`,
     padding: "10px 12px",
     fontSize: "13px",
     marginBottom: "16px",
-    fontFamily: "'Kalam', cursive",
+    fontFamily: "'Architects Daughter', cursive",
   },
   label: {
     display: "block",
-    fontFamily: "'Kalam', cursive",
+    fontFamily: "'Architects Daughter', cursive",
     fontSize: "13px",
     marginBottom: "6px",
     marginTop: "14px",
   },
   input: {
     width: "100%",
-    padding: "10px 12px",
+    padding: "11px 12px",
     fontSize: "14px",
     border: `1.5px solid ${COLORS.ink}`,
-    background: COLORS.paper,
+    background: "#fff",
     outline: "none",
     boxSizing: "border-box",
   },
-  passwordRow: {
-    position: "relative",
-  },
+  passwordRow: { position: "relative" },
   eyeButton: {
     position: "absolute",
     right: "10px",
@@ -207,10 +219,10 @@ const styles = {
     width: "100%",
     marginTop: "22px",
     padding: "12px",
-    background: COLORS.ink,
-    color: COLORS.paper,
+    background: COLORS.secondary,
+    color: "#fff",
     border: `1.5px solid ${COLORS.ink}`,
-    fontFamily: "'Kalam', cursive",
+    fontFamily: "'Architects Daughter', cursive",
     fontSize: "16px",
     display: "flex",
     alignItems: "center",
@@ -225,8 +237,8 @@ const styles = {
     marginTop: "20px",
   },
   link: {
-    color: COLORS.coral,
-    fontWeight: 600,
+    color: COLORS.secondary,
+    fontWeight: 700,
     cursor: "pointer",
   },
 };

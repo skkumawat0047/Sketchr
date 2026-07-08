@@ -45,7 +45,7 @@ src/
 Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/skkumawat0047/Sketchr.git
 ```
 
 Go to project directory
