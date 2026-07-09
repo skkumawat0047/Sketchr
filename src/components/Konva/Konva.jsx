@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Circle, Layer, Rect, Stage } from "react-konva";
+import { Circle, Layer, Rect, Stage, Text } from "react-konva";
 
 
 const Konva = () => {
   const [zoom, setZoom] = useState(1);
+  const [word, setword] = useState("hello")
 
   return (
     <>
@@ -23,6 +24,16 @@ const Konva = () => {
               radius={100}
               stroke="black"
               strokeWidth={2}
+              draggable
+            />
+            <Text
+              x={window.innerWidth / 2}
+              y={15}
+              text={word}
+              fontSize={30}
+              fontFamily="Calibri"
+              fill="black"
+              offsetX={60} // Approximate half width
               draggable
             />
           </Layer>
