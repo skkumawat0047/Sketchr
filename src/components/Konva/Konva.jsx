@@ -17,6 +17,7 @@ const Konva = () => {
           className="bg-white"
           draggable
         >
+          
           <Layer>
             <Circle
               x={350}
