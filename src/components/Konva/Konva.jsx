@@ -22,7 +22,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
     <>
       {editingText && (
         <textarea
-          autoFocus
+          autoFocus={true}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           style={{
@@ -31,6 +31,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
             top: editingText.y,
             fontSize: "20px",
             border: "2px solid black",
+            borderRadius:"10px",
             outline: "none",
             background: "transparent",
             color: color,
@@ -38,28 +39,28 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
           }}
 
           onKeyDown={(e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
+            if (e.key === "Enter") {
+              e.preventDefault();
 
-    setTexts((prev) => [
-      ...prev,
-      {
-        x: editingText.x,
-        y: editingText.y,
-        text: inputValue,
-        color,
-        fontSize: 20,
-      },
-    ]);
+              setTexts((prev) => [
+                ...prev,
+                {
+                  x: editingText.x,
+                  y: editingText.y,
+                  text: inputValue,
+                  color,
+                  fontSize: 20,
+                },
+              ]);
 
-    setEditingText(null);
-    setInputValue("");
-  }
-}}
+              setEditingText(null);
+              setInputValue("");
+            }
+          }}
         />
       )};
-      <div className="relative w-full h-full border-2 border-gray-400 bg-gray-300 shadow-lg">
-        <Stage width={window.innerWidth} height={window.innerHeight} scaleX={zoom} scaleY={zoom} className="bg-white" draggable onMouseDown={handleStageClick}>
+      <div className="relative w-full h-fit border-2 border-gray-400 bg-gray-300 shadow-lg overflow-hidden">
+        <Stage width={window.innerWidth} height={window.innerHeight} scaleX={zoom} scaleY={zoom} className="bg-white" draggable={tool!=="text"} onMouseDown={handleStageClick}>
           <Layer>
             <Circle x={350} y={350} radius={100} stroke="black" strokeWidth={2} draggable />
             <Text x={15} y={15} text={word} fontSize={30} fontFamily="Calibri" fill="black" offsetX={60} draggable />
