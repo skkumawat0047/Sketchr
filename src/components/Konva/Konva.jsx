@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layer, Stage, Text, Line, Rect, Circle, Ellipse, RegularPolygon, Arrow, Group } from "react-konva";
 
-const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig }) => {
+const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig, saveHistory }) => {
   const [zoom, setZoom] = useState(1);
   const [editingText, setEditingText] = useState(null);
   const [inputValue, setInputValue] = useState("");
@@ -35,12 +35,12 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
 
     if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
       setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color, strokeWidth, zIndex: currentZIndex }]);
-    } 
+    }
     else if (tool === 'shape') {
       setShapes([...shapes, { type: shapeType, x: pos.x, y: pos.y, width: 0, height: 0, color, strokeWidth, zIndex: currentZIndex }]);
     }
     else if (tool === 'table') {
-      if(tableConfig) {
+      if (tableConfig) {
         setTables([...tables, { x: pos.x, y: pos.y, width: 0, height: 0, rows: tableConfig.rows, cols: tableConfig.cols, color, strokeWidth, zIndex: currentZIndex }]);
       }
     }
@@ -55,7 +55,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
       let lastLine = { ...lines[lines.length - 1] };
       lastLine.points = lastLine.points.concat([point.x, point.y]);
       setLines([...lines.slice(0, lines.length - 1), lastLine]);
-    } 
+    }
     else if (tool === 'shape') {
       let lastShape = { ...shapes[shapes.length - 1] };
       lastShape.width = point.x - lastShape.x;
@@ -71,11 +71,15 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
   };
 
   const handleMouseUp = () => {
+    if (isDrawing.current) {
+      // Jab drawing puri ho jaye, to history ka snapshot le lo
+      saveHistory(lines, shapes, texts, tables);
+    }
     isDrawing.current = false;
   };
 
   const renderTable = (tbl, i) => {
-    if(!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
+    if (!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
     const rowHeight = tbl.height / tbl.rows;
     const colWidth = tbl.width / tbl.cols;
     const gridLines = [];
@@ -109,8 +113,10 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              // Text me bhi wahi zIndex save kar rahe hain jo click karte waqt tha
-              setTexts((prev) => [...prev, { x: editingText.canvasX, y: editingText.canvasY, text: inputValue, color, fontSize: 20, zIndex: editingText.zIndex },]);
+              const newTexts = [...texts, { x: editingText.canvasX, y: editingText.canvasY, text: inputValue, color, fontSize: 20, zIndex: editingText.zIndex }];
+              setTexts(newTexts);
+              // Text add hone ke baad bhi history save karein
+              saveHistory(lines, shapes, newTexts, tables);
               setEditingText(null);
               setInputValue("");
             }
@@ -126,28 +132,38 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
           onTouchStart={handleMouseDown} onTouchMove={handleMouseMove} onTouchEnd={handleMouseUp}
         >
           <Layer>
-            
+
             {/* Saare combined aur sorted elements ko ek sath render kar rahe hain */}
             {allElements.map((el, i) => {
               if (el.itemType === 'line') {
                 return (
-                  <Line 
-                    key={`line-${i}`} points={el.points} stroke={el.color} 
-                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth} 
-                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round" 
-                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'} 
+                  <Line
+                    key={`line-${i}`} points={el.points} stroke={el.color}
+                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth}
+                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round"
+                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'}
                   />
                 );
               }
-              if (el.itemType === 'shape') {
+                            if (el.itemType === 'shape') {
                 if (Math.abs(el.width) < 1 && Math.abs(el.height) < 1) return null;
+                
+                // Yahan humne Euclidean distance formula (Radius) add kiya hai
+                // Isse Circle aur Polygon ekdum mouse ke point tak perfect gol (round) banenge
+                const radius = Math.sqrt(el.width * el.width + el.height * el.height);
+
                 if (el.type === 'Rect') return <Rect key={`shape-${i}`} x={el.x} y={el.y} width={el.width} height={el.height} stroke={el.color} strokeWidth={el.strokeWidth} />;
-                if (el.type === 'Circle') return <Circle key={`shape-${i}`} x={el.x} y={el.y} radius={Math.abs(el.width)} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                
+                // Circle aur Polygon me ab 'radius' pass kar rahe hain
+                if (el.type === 'Circle') return <Circle key={`shape-${i}`} x={el.x} y={el.y} radius={radius} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                
                 if (el.type === 'Ellipse') return <Ellipse key={`shape-${i}`} x={el.x} y={el.y} radiusX={Math.abs(el.width)} radiusY={Math.abs(el.height)} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                
                 if (el.type === 'Arrow') return <Arrow key={`shape-${i}`} points={[el.x, el.y, el.x + el.width, el.y + el.height]} stroke={el.color} strokeWidth={el.strokeWidth} fill={el.color} />;
+                
                 if (el.type === 'Pentagon' || el.type === 'Hexagon' || el.type === 'Octagon') {
                   const sides = el.type === 'Pentagon' ? 5 : el.type === 'Hexagon' ? 6 : 8;
-                  return <RegularPolygon key={`shape-${i}`} x={el.x} y={el.y} sides={sides} radius={Math.abs(el.width)} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                  return <RegularPolygon key={`shape-${i}`} x={el.x} y={el.y} sides={sides} radius={radius} stroke={el.color} strokeWidth={el.strokeWidth} />;
                 }
                 return null;
               }

@@ -22,6 +22,41 @@ const Home = () => {
   const [color, setColor] = useState("#8e47ba");
   const [strokeWidth, setStrokeWidth] = useState(3);
 
+  // --- Undo/Redo Logic ---
+  const [history, setHistory] = useState([{ lines: [], shapes: [], texts: [], tables: [] }]);
+  const [historyStep, setHistoryStep] = useState(0);
+
+  const handleUndo = () => {
+    if (historyStep > 0) {
+      const newStep = historyStep - 1;
+      setHistoryStep(newStep);
+      setLines(history[newStep].lines);
+      setShapes(history[newStep].shapes);
+      setTexts(history[newStep].texts);
+      setTables(history[newStep].tables);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyStep < history.length - 1) {
+      const newStep = historyStep + 1;
+      setHistoryStep(newStep);
+      setLines(history[newStep].lines);
+      setShapes(history[newStep].shapes);
+      setTexts(history[newStep].texts);
+      setTables(history[newStep].tables);
+    }
+  };
+
+  const saveHistory = (currentLines, currentShapes, currentTexts, currentTables) => {
+    const newState = { lines: currentLines, shapes: currentShapes, texts: currentTexts, tables: currentTables };
+    const newHistory = history.slice(0, historyStep + 1);
+    newHistory.push(newState);
+    setHistory(newHistory);
+    setHistoryStep(newHistory.length - 1);
+  };
+  // --- NAYA CODE YAHAN KHATAM ---
+
   return (
     <>
       <Navbar />
@@ -34,6 +69,8 @@ const Home = () => {
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
         shapeType={shapeType} setShapeType={setShapeType} // Ye add kiya
         tableConfig={tableConfig} setTableConfig={setTableConfig} // Ye add kiya
+         handleUndo={handleUndo} //  /* Ye add karein */
+        handleRedo={handleRedo}
       /> 
       
       <Konva 
@@ -46,6 +83,7 @@ const Home = () => {
         strokeWidth={strokeWidth}
         shapeType={shapeType} // Ye add kiya
         tableConfig={tableConfig} // Ye add kiya
+        saveHistory={saveHistory}
       />
     </>
   );
