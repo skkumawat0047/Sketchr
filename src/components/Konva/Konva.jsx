@@ -18,7 +18,10 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
   }, [editingText]);
 
   const handleMouseDown = (e) => {
-    const currentZIndex = Date.now(); // Har naye item ko ek unique time-stamp de rahe hain
+    // Agar mover tool selected hai, to draw karne ka logic chalane ki zaroorat nahi hai
+    if (tool === 'mover') return;
+
+    const currentZIndex = Date.now();
 
     if (tool === "text") {
       const stage = stageRef.current;
@@ -35,19 +38,19 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
 
     if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
       setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color, strokeWidth, zIndex: currentZIndex }]);
-    }
+    } 
     else if (tool === 'shape') {
       setShapes([...shapes, { type: shapeType, x: pos.x, y: pos.y, width: 0, height: 0, color, strokeWidth, zIndex: currentZIndex }]);
     }
     else if (tool === 'table') {
-      if (tableConfig) {
+      if(tableConfig) {
         setTables([...tables, { x: pos.x, y: pos.y, width: 0, height: 0, rows: tableConfig.rows, cols: tableConfig.cols, color, strokeWidth, zIndex: currentZIndex }]);
       }
     }
   };
 
   const handleMouseMove = (e) => {
-    if (!isDrawing.current) return;
+    if (!isDrawing.current || tool === 'mover') return;
     const stage = e.target.getStage();
     const point = stage.getAbsoluteTransform().copy().invert().point(stage.getPointerPosition());
 
@@ -55,7 +58,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
       let lastLine = { ...lines[lines.length - 1] };
       lastLine.points = lastLine.points.concat([point.x, point.y]);
       setLines([...lines.slice(0, lines.length - 1), lastLine]);
-    }
+    } 
     else if (tool === 'shape') {
       let lastShape = { ...shapes[shapes.length - 1] };
       lastShape.width = point.x - lastShape.x;
@@ -71,15 +74,14 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
   };
 
   const handleMouseUp = () => {
-    if (isDrawing.current) {
-      // Jab drawing puri ho jaye, to history ka snapshot le lo
+    if (isDrawing.current && tool !== 'mover') {
       saveHistory(lines, shapes, texts, tables);
     }
     isDrawing.current = false;
   };
 
   const renderTable = (tbl, i) => {
-    if (!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
+    if(!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
     const rowHeight = tbl.height / tbl.rows;
     const colWidth = tbl.width / tbl.cols;
     const gridLines = [];
@@ -92,7 +94,6 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
     return <Group key={i} x={tbl.x} y={tbl.y}>{gridLines}</Group>;
   };
 
-  // MAIN FIX: Saare elements ko ek array me combine karke unke banne ke time (zIndex) ke hisaab se sort kar rahe hain
   const allElements = [
     ...lines.map(l => ({ ...l, itemType: 'line' })),
     ...shapes.map(s => ({ ...s, itemType: 'shape' })),
@@ -113,9 +114,8 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              const newTexts = [...texts, { x: editingText.canvasX, y: editingText.canvasY, text: inputValue, color, fontSize: 20, zIndex: editingText.zIndex }];
+              const newTexts = [...texts, { x: editingText.canvasX, y: editingText.canvasY, text: inputValue, color, fontSize: 20, zIndex: editingText.zIndex },];
               setTexts(newTexts);
-              // Text add hone ke baad bhi history save karein
               saveHistory(lines, shapes, newTexts, tables);
               setEditingText(null);
               setInputValue("");
@@ -126,41 +126,44 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
 
       <div className="relative w-full h-fit border-2 border-gray-400 bg-gray-300 shadow-lg overflow-hidden">
         <Stage
-          ref={stageRef} width={window.innerWidth} height={window.innerHeight} scaleX={zoom} scaleY={zoom} className="bg-white"
-          draggable={tool !== "text" && tool !== "pen" && tool !== "brush" && tool !== "eraser" && tool !== "shape" && tool !== "table"}
+          ref={stageRef} 
+          width={window.innerWidth} 
+          height={window.innerHeight} 
+          scaleX={zoom} 
+          scaleY={zoom} 
+          className="bg-white"
+          
+          // YAHAN CHANGE KIYA HAI:
+          // Agar tool mover hai to canvas ko drag karne dega, warna drawing karne dega.
+          draggable={tool === "mover"}
+          
+          // Cursor badalne ke liye style add kiya hai:
+          // Mover select karne par cursor haath (grab) ban jayega, aur baaki tools ke liye crosshair (plus sign) jisse target karna aasan ho.
+          style={{ cursor: tool === 'mover' ? 'grab' : 'crosshair' }}
+
           onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown} onTouchMove={handleMouseMove} onTouchEnd={handleMouseUp}
         >
           <Layer>
-
-            {/* Saare combined aur sorted elements ko ek sath render kar rahe hain */}
             {allElements.map((el, i) => {
               if (el.itemType === 'line') {
                 return (
-                  <Line
-                    key={`line-${i}`} points={el.points} stroke={el.color}
-                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth}
-                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round"
-                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'}
+                  <Line 
+                    key={`line-${i}`} points={el.points} stroke={el.color} 
+                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth} 
+                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round" 
+                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'} 
                   />
                 );
               }
-                            if (el.itemType === 'shape') {
+              if (el.itemType === 'shape') {
                 if (Math.abs(el.width) < 1 && Math.abs(el.height) < 1) return null;
-                
-                // Yahan humne Euclidean distance formula (Radius) add kiya hai
-                // Isse Circle aur Polygon ekdum mouse ke point tak perfect gol (round) banenge
                 const radius = Math.sqrt(el.width * el.width + el.height * el.height);
-
+                
                 if (el.type === 'Rect') return <Rect key={`shape-${i}`} x={el.x} y={el.y} width={el.width} height={el.height} stroke={el.color} strokeWidth={el.strokeWidth} />;
-                
-                // Circle aur Polygon me ab 'radius' pass kar rahe hain
                 if (el.type === 'Circle') return <Circle key={`shape-${i}`} x={el.x} y={el.y} radius={radius} stroke={el.color} strokeWidth={el.strokeWidth} />;
-                
                 if (el.type === 'Ellipse') return <Ellipse key={`shape-${i}`} x={el.x} y={el.y} radiusX={Math.abs(el.width)} radiusY={Math.abs(el.height)} stroke={el.color} strokeWidth={el.strokeWidth} />;
-                
                 if (el.type === 'Arrow') return <Arrow key={`shape-${i}`} points={[el.x, el.y, el.x + el.width, el.y + el.height]} stroke={el.color} strokeWidth={el.strokeWidth} fill={el.color} />;
-                
                 if (el.type === 'Pentagon' || el.type === 'Hexagon' || el.type === 'Octagon') {
                   const sides = el.type === 'Pentagon' ? 5 : el.type === 'Hexagon' ? 6 : 8;
                   return <RegularPolygon key={`shape-${i}`} x={el.x} y={el.y} sides={sides} radius={radius} stroke={el.color} strokeWidth={el.strokeWidth} />;
@@ -171,11 +174,10 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
                 return renderTable(el, `table-${i}`);
               }
               if (el.itemType === 'text') {
-                return <Text key={`text-${i}`} x={el.x} y={el.y} text={el.text} fill={el.color} fontSize={el.fontSize} draggable />;
+                return <Text key={`text-${i}`} x={el.x} y={el.y} text={el.text} fill={el.color} fontSize={el.fontSize} draggable={tool === 'mover'} />;
               }
               return null;
             })}
-
           </Layer>
         </Stage>
       </div>

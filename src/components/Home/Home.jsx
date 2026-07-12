@@ -62,7 +62,7 @@ const Home = () => {
       <Navbar />
       <Sidebar />
 
-            <Bottom 
+        <Bottom 
         tool={tool} setTool={setTool} 
         texts={texts} setTexts={setTexts} 
         color={color} setColor={setColor} 
