@@ -1,47 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 
 const Color = ({ color, setColor }) => {
-  const [colorStore, setColorStore] = useState([
-    { id: 1, hexValue: "#aabbcc" },
-    { id: 2, hexValue: "#ababab" },
-  ]);
+  // 1. Component load hote waqt hum check karenge ki kya LocalStorage me purane colors hain?
+  const [colorStore, setColorStore] = useState(() => {
+    const savedColors = localStorage.getItem("sketchr_colors");
+    if (savedColors) {
+      return JSON.parse(savedColors); // Agar hain to unhe load kar lo
+    }
+    // Agar nahi hain (pehli baar open kiya hai) to ye default colors de do
+    return [
+      { id: 1, hexValue: "#aabbcc" },
+      { id: 2, hexValue: "#ababab" },
+    ];
+  });
 
-  // Ye function naye color ko colorStore me save karne ke liye hai
+  // 2. useEffect tab chalega jab bhi 'colorStore' me koi naya color add hoga
+  // Ye har naye color ko turant LocalStorage me hamesha ke liye save kar dega
+  useEffect(() => {
+    localStorage.setItem("sketchr_colors", JSON.stringify(colorStore));
+  }, [colorStore]);
+
   const saveColor = (selectedColor) => {
+    // Agar color already hai to save na karein
     const isColorExist = colorStore.some((item) => item.hexValue === selectedColor);
 
     if (isColorExist) {
       return; 
     } else {
+      // Naya color list me add karein
       setColorStore([...colorStore, { id: Date.now(), hexValue: selectedColor }]);
     }
   };
 
   return (
-    <div className="border-2 border-black w-auto bg-sky-200 rounded-lg p-3">
-      <div className="min-w-80">
+    <div className="border-2 border-black w-[370px] bg-sky-200 rounded-lg p-3">
+      <div className="w-full">
         <div className="flex gap-4">
           
-          {/* ----- LEFT SIDE: Color Picker aur Current Color Info ----- */}
-          <div className="flex flex-col">
-            {/* React-Colorful ka component jo color choose karne me madad karta hai */}
-            <HexColorPicker color={color} onChange={setColor} />
+          {/* ----- LEFT SIDE: Color Picker ----- */}
+          <div className="flex flex-col w-[200px]">
+            <HexColorPicker 
+              color={color} 
+              onChange={setColor} 
+              style={{ width: "100%", height: "150px" }}
+            />
             
-            {/* Niche wala section jo current selected color aur uski Hex Value dikhata hai */}
-            <div className="flex items-center gap-2 mt-3">
-              {/* Ek chota sa box jo current color dikhayega */}
+            <div className="flex items-center justify-between gap-2 mt-3 w-full">
               <div 
-                className="w-8 h-8 rounded-md border border-gray-400" 
-                style={{ "background": color }}
+                className="w-8 h-8 rounded-md border border-gray-400 shrink-0" 
+                style={{ backgroundColor: color }}
               ></div>
               
-              {/* Color ki Hex string (e.g., #ff0000) */}
-              <span className="w-16 text-sm font-semibold">{color}</span>
+              <span className="w-16 text-sm font-semibold truncate text-center">{color}</span>
               
-              {/* "Pick" button jise click karne par current color list me save ho jayega */}
               <button
-                className="border-[1px] px-5 py-1 rounded-md border-black bg-blue-500 text-white font-medium hover:bg-blue-600 active:bg-green-400 transition-colors"
+                className="border-[1px] px-3 py-1 rounded-md border-black bg-blue-500 text-white font-medium hover:bg-blue-600 active:bg-green-400 transition-colors"
                 onClick={() => saveColor(color)}
               >
                 Save
@@ -49,17 +63,15 @@ const Color = ({ color, setColor }) => {
             </div>
           </div>
           
-          {/* ----- RIGHT SIDE: Saved Colors ki List ----- */}
-          <div className="max-w-36 max-h-60 flex flex-wrap content-start overflow-y-auto">
+          {/* ----- RIGHT SIDE: Saved Colors ----- */}
+          <div className="flex-1 max-h-[190px] flex flex-wrap content-start overflow-y-auto pr-1">
             {colorStore.map((clr) => (
               <span
-                key={clr.id} // React list ke liye unique key zaroori hai
-                // className me 'border-gray-400' lagaya hai taaki safed (white) color easily dikh sake
-                className="w-8 h-8 rounded-md m-1 cursor-pointer border border-gray-400 hover:scale-110 transition-transform"
-                style={{ background: clr.hexValue }} 
-                // Jab bhi user saved color par click karega, to wo color canvas (Konva) me apply ho jayega
+                key={clr.id} 
+                className="w-8 h-8 rounded-md m-1 cursor-pointer border border-gray-400 hover:scale-110 transition-transform shrink-0"
+                style={{ backgroundColor: clr.hexValue }} 
                 onClick={() => setColor(clr.hexValue)} 
-                title={clr.hexValue} // Hover karne par color code tooltip me dikhega
+                title={clr.hexValue}
               ></span>
             ))}
           </div>

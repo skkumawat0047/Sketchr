@@ -8,6 +8,10 @@ const Home = () => {
   // Tool
   const [tool, setTool] = useState("pen");
 
+  // Nayi States Shapes aur Table selection ke liye
+  const [shapeType, setShapeType] = useState("Rect");
+  const [tableConfig, setTableConfig] = useState({ type: 'grid', rows: 3, cols: 3 });
+
   // Drawing Data
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
@@ -23,9 +27,25 @@ const Home = () => {
       <Navbar />
       <Sidebar />
 
-      <Bottom tool={tool} setTool={setTool} texts={texts} setTexts={setTexts} color={color} setColor={setColor} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
+            <Bottom 
+        tool={tool} setTool={setTool} 
+        texts={texts} setTexts={setTexts} 
+        color={color} setColor={setColor} 
+        strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
+        shapeType={shapeType} setShapeType={setShapeType} // Ye add kiya
+        tableConfig={tableConfig} setTableConfig={setTableConfig} // Ye add kiya
       /> 
-      <Konva tool={tool} lines={lines} setLines={setLines} shapes={shapes} setShapes={setShapes} texts={texts} setTexts={setTexts} tables={tables} setTables={setTables} color={color} strokeWidth={strokeWidth}
+      
+      <Konva 
+        tool={tool} 
+        lines={lines} setLines={setLines} 
+        shapes={shapes} setShapes={setShapes} 
+        texts={texts} setTexts={setTexts} 
+        tables={tables} setTables={setTables} 
+        color={color} 
+        strokeWidth={strokeWidth}
+        shapeType={shapeType} // Ye add kiya
+        tableConfig={tableConfig} // Ye add kiya
       />
     </>
   );

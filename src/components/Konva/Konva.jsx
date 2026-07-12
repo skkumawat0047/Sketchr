@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Circle, Layer, Stage, Text, Line } from "react-konva";
+import { Layer, Stage, Text, Line, Rect, Circle, Ellipse, RegularPolygon, Arrow, Group } from "react-konva";
 
-const Konva = ({ tool, lines, setLines, texts, setTexts, color, strokeWidth }) => {
+const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig }) => {
   const [zoom, setZoom] = useState(1);
-  const [word, setword] = useState("hello");
   const [editingText, setEditingText] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const isDrawing = useRef(false);
@@ -11,77 +10,91 @@ const Konva = ({ tool, lines, setLines, texts, setTexts, color, strokeWidth }) =
   const stageRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // auto-focus of textarea
   useEffect(() => {
     if (editingText) {
-      const timer = setTimeout(() => {
-        textareaRef.current?.focus();
-      }, 50);
+      const timer = setTimeout(() => textareaRef.current?.focus(), 50);
       return () => clearTimeout(timer);
     }
   }, [editingText]);
 
   const handleMouseDown = (e) => {
-    // ---- TEXT TOOL LOGIC ----
+    const currentZIndex = Date.now(); // Har naye item ko ek unique time-stamp de rahe hain
+
     if (tool === "text") {
       const stage = stageRef.current;
-      if (!stage) return;
       const pointerPosition = stage.getPointerPosition();
       const stageTransform = stage.getAbsoluteTransform().copy().invert();
       const canvasPos = stageTransform.point(pointerPosition);
-
-      setEditingText({
-        canvasX: canvasPos.x,
-        canvasY: canvasPos.y,
-        screenX: pointerPosition.x,
-        screenY: pointerPosition.y,
-      });
+      setEditingText({ canvasX: canvasPos.x, canvasY: canvasPos.y, screenX: pointerPosition.x, screenY: pointerPosition.y, zIndex: currentZIndex });
       return;
     }
 
-    // ---- PEN TOOL LOGIC ----
-    if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
-      isDrawing.current = true;
-      const stage = e.target.getStage();
-      // stageTransform use karein taki zoom hone par bhi sahi jagah draw ho
-      const pointerPosition = stage.getPointerPosition();
-      const stageTransform = stage.getAbsoluteTransform().copy().invert();
-      const pos = stageTransform.point(pointerPosition);
+    isDrawing.current = true;
+    const stage = e.target.getStage();
+    const pos = stage.getAbsoluteTransform().copy().invert().point(stage.getPointerPosition());
 
-      setLines([...lines, {
-        tool: tool,
-        points: [pos.x, pos.y],
-        // Eraser ke liye solid color zaroori hai (destination-out ke saath)
-        color: tool === 'eraser' ? '#ffffff' : color,
-        strokeWidth: strokeWidth
-      }]);
+    if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
+      setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color, strokeWidth, zIndex: currentZIndex }]);
+    } 
+    else if (tool === 'shape') {
+      setShapes([...shapes, { type: shapeType, x: pos.x, y: pos.y, width: 0, height: 0, color, strokeWidth, zIndex: currentZIndex }]);
+    }
+    else if (tool === 'table') {
+      if(tableConfig) {
+        setTables([...tables, { x: pos.x, y: pos.y, width: 0, height: 0, rows: tableConfig.rows, cols: tableConfig.cols, color, strokeWidth, zIndex: currentZIndex }]);
+      }
     }
   };
 
   const handleMouseMove = (e) => {
-    if (!isDrawing.current || (tool !== 'pen' && tool !== 'brush' && tool !== 'eraser')) return;
-
+    if (!isDrawing.current) return;
     const stage = e.target.getStage();
-    const pointerPosition = stage.getPointerPosition();
-    const stageTransform = stage.getAbsoluteTransform().copy().invert();
-    const point = stageTransform.point(pointerPosition);
+    const point = stage.getAbsoluteTransform().copy().invert().point(stage.getPointerPosition());
 
-    let lastLine = lines[lines.length - 1];
-
-    // Naye line ko modify na karke uski copy banayein
-    const newLastLine = {
-      ...lastLine,
-      points: lastLine.points.concat([point.x, point.y])
-    };
-
-    const newLines = lines.slice(0, lines.length - 1);
-    newLines.push(newLastLine);
-    setLines(newLines);
+    if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
+      let lastLine = { ...lines[lines.length - 1] };
+      lastLine.points = lastLine.points.concat([point.x, point.y]);
+      setLines([...lines.slice(0, lines.length - 1), lastLine]);
+    } 
+    else if (tool === 'shape') {
+      let lastShape = { ...shapes[shapes.length - 1] };
+      lastShape.width = point.x - lastShape.x;
+      lastShape.height = point.y - lastShape.y;
+      setShapes([...shapes.slice(0, shapes.length - 1), lastShape]);
+    }
+    else if (tool === 'table') {
+      let lastTable = { ...tables[tables.length - 1] };
+      lastTable.width = point.x - lastTable.x;
+      lastTable.height = point.y - lastTable.y;
+      setTables([...tables.slice(0, tables.length - 1), lastTable]);
+    }
   };
 
   const handleMouseUp = () => {
     isDrawing.current = false;
   };
+
+  const renderTable = (tbl, i) => {
+    if(!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
+    const rowHeight = tbl.height / tbl.rows;
+    const colWidth = tbl.width / tbl.cols;
+    const gridLines = [];
+    for (let r = 0; r <= tbl.rows; r++) {
+      gridLines.push(<Line key={`h${r}`} points={[0, r * rowHeight, tbl.width, r * rowHeight]} stroke={tbl.color} strokeWidth={tbl.strokeWidth} />);
+    }
+    for (let c = 0; c <= tbl.cols; c++) {
+      gridLines.push(<Line key={`v${c}`} points={[c * colWidth, 0, c * colWidth, tbl.height]} stroke={tbl.color} strokeWidth={tbl.strokeWidth} />);
+    }
+    return <Group key={i} x={tbl.x} y={tbl.y}>{gridLines}</Group>;
+  };
+
+  // MAIN FIX: Saare elements ko ek array me combine karke unke banne ke time (zIndex) ke hisaab se sort kar rahe hain
+  const allElements = [
+    ...lines.map(l => ({ ...l, itemType: 'line' })),
+    ...shapes.map(s => ({ ...s, itemType: 'shape' })),
+    ...tables.map(t => ({ ...t, itemType: 'table' })),
+    ...texts.map(t => ({ ...t, itemType: 'text' }))
+  ].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
 
   return (
     <>
@@ -96,8 +109,8 @@ const Konva = ({ tool, lines, setLines, texts, setTexts, color, strokeWidth }) =
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              // so that canvas can save text on right position
-              setTexts((prev) => [...prev, { x: editingText.canvasX, y: editingText.canvasY, text: inputValue, color, fontSize: 20, },]);
+              // Text me bhi wahi zIndex save kar rahe hain jo click karte waqt tha
+              setTexts((prev) => [...prev, { x: editingText.canvasX, y: editingText.canvasY, text: inputValue, color, fontSize: 20, zIndex: editingText.zIndex },]);
               setEditingText(null);
               setInputValue("");
             }
@@ -107,43 +120,46 @@ const Konva = ({ tool, lines, setLines, texts, setTexts, color, strokeWidth }) =
 
       <div className="relative w-full h-fit border-2 border-gray-400 bg-gray-300 shadow-lg overflow-hidden">
         <Stage
-          ref={stageRef}
-          width={window.innerWidth}
-          height={window.innerHeight}
-          scaleX={zoom}
-          scaleY={zoom}
-          className="bg-white"
-          draggable={tool !== "text" && tool !== "pen" && tool !== "brush" && tool !== "eraser"}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
+          ref={stageRef} width={window.innerWidth} height={window.innerHeight} scaleX={zoom} scaleY={zoom} className="bg-white"
+          draggable={tool !== "text" && tool !== "pen" && tool !== "brush" && tool !== "eraser" && tool !== "shape" && tool !== "table"}
+          onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown} onTouchMove={handleMouseMove} onTouchEnd={handleMouseUp}
         >
           <Layer>
-            {/* 1. YAHAN CHANGE HAI: Lines ko sabse upar rakha gaya hai taaki wo sabse bottom me draw hon */}
-            {lines.map((line, i) => (
-              <Line 
-                key={i} 
-                points={line.points} 
-                stroke={line.color} 
-                strokeWidth={line.tool === 'brush' ? line.strokeWidth * 3 : line.strokeWidth} 
-                opacity={line.tool === 'brush' ? 0.3 : 1}
-                tension={0.5} 
-                lineCap="round" 
-                lineJoin="round" 
-                // YAHAN CHANGE HAI: Wapas se asli eraser laga diya gaya hai
-                globalCompositeOperation={
-                  line.tool === 'eraser' ? 'destination-out' : 'source-over'
-                }
-              />
-            ))}
             
-            {/* 3. YAHAN CHANGE HAI: Text sabse aakhir me hai taaki ye hamesha drawing/eraser ke upar dikhe */}
-            {texts.map((t, i) => (
-              <Text key={i} x={t.x} y={t.y} text={t.text} fill={t.color} fontSize={t.fontSize} draggable />
-            ))}
+            {/* Saare combined aur sorted elements ko ek sath render kar rahe hain */}
+            {allElements.map((el, i) => {
+              if (el.itemType === 'line') {
+                return (
+                  <Line 
+                    key={`line-${i}`} points={el.points} stroke={el.color} 
+                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth} 
+                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round" 
+                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'} 
+                  />
+                );
+              }
+              if (el.itemType === 'shape') {
+                if (Math.abs(el.width) < 1 && Math.abs(el.height) < 1) return null;
+                if (el.type === 'Rect') return <Rect key={`shape-${i}`} x={el.x} y={el.y} width={el.width} height={el.height} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                if (el.type === 'Circle') return <Circle key={`shape-${i}`} x={el.x} y={el.y} radius={Math.abs(el.width)} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                if (el.type === 'Ellipse') return <Ellipse key={`shape-${i}`} x={el.x} y={el.y} radiusX={Math.abs(el.width)} radiusY={Math.abs(el.height)} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                if (el.type === 'Arrow') return <Arrow key={`shape-${i}`} points={[el.x, el.y, el.x + el.width, el.y + el.height]} stroke={el.color} strokeWidth={el.strokeWidth} fill={el.color} />;
+                if (el.type === 'Pentagon' || el.type === 'Hexagon' || el.type === 'Octagon') {
+                  const sides = el.type === 'Pentagon' ? 5 : el.type === 'Hexagon' ? 6 : 8;
+                  return <RegularPolygon key={`shape-${i}`} x={el.x} y={el.y} sides={sides} radius={Math.abs(el.width)} stroke={el.color} strokeWidth={el.strokeWidth} />;
+                }
+                return null;
+              }
+              if (el.itemType === 'table') {
+                return renderTable(el, `table-${i}`);
+              }
+              if (el.itemType === 'text') {
+                return <Text key={`text-${i}`} x={el.x} y={el.y} text={el.text} fill={el.color} fontSize={el.fontSize} draggable />;
+              }
+              return null;
+            })}
+
           </Layer>
         </Stage>
       </div>

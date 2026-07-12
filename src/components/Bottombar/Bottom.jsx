@@ -6,16 +6,17 @@ import Table from '../ShapeColorPen/Table';
 
 
 
-const Bottom = ({tool,setTool,texts,setTexts,color,setColor,strokeWidth,setStrokeWidth}) => {
+const Bottom = ({ tool, setTool, texts, setTexts, color, setColor, strokeWidth, setStrokeWidth,shapeType,setShapeType,tableConfig,setTableConfig}) => {
     return (
         <div>
             <footer className='fixed w-full bottom-2 flex flex-col items-center gap-1 z-10'>
                 {(tool === "pen" || tool === "brush" || tool === "eraser") && (
-    <Pen tool={tool} setTool={setTool} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth} />
-)}
-                {tool === "shape" ? (<Shape />) : ""}
-                {tool === "color" ? (<Color />) : ""}
-                {tool === "table" ? (<Table />) : ""}
+                    <Pen tool={tool} setTool={setTool} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth} />
+                )}
+                {/* Jahan aapne Shape aur Table ko bulaya hai wahan ye likhein: */}
+                {tool === "shape" ? (<Shape shapeType={shapeType} setShapeType={setShapeType} />) : ""}
+                {tool === "color" ? (<Color color={color} setColor={setColor} />) : ""}
+                {tool === "table" ? (<Table tableConfig={tableConfig} setTableConfig={setTableConfig} />) : ""}
                 <ul className='w-fit px-5 rounded-full bg-gray-300 py-1 flex justify-center gap-3 text-2xl hover:[&>*]:cursor-pointer active:[&>li]:bg-blue-600 [&>*]:rounded-md'>
                     <li><i className="fa-solid fa-rotate-left" onClick={() => setTool("")}></i></li>
                     <li><i className="fa-solid fa-rotate-right" onClick={() => setTool("")}></i></li>
