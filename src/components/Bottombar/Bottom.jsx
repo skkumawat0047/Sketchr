@@ -6,11 +6,13 @@ import Table from '../ShapeColorPen/Table';
 
 
 
-const Bottom = ({tool,setTool,texts,setTexts,color,strokeWidth,}) => {
+const Bottom = ({tool,setTool,texts,setTexts,color,setColor,strokeWidth,setStrokeWidth}) => {
     return (
         <div>
             <footer className='fixed w-full bottom-2 flex flex-col items-center gap-1 z-10'>
-                {tool === "pen" ? (<Pen />) : ""}
+                {(tool === "pen" || tool === "brush" || tool === "eraser") && (
+    <Pen tool={tool} setTool={setTool} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth} />
+)}
                 {tool === "shape" ? (<Shape />) : ""}
                 {tool === "color" ? (<Color />) : ""}
                 {tool === "table" ? (<Table />) : ""}

@@ -23,29 +23,9 @@ const Home = () => {
       <Navbar />
       <Sidebar />
 
-      <Bottom
-        tool={tool}
-        setTool={setTool}
-        texts={texts}
-        setTexts={setTexts}
-        color={color}
-        setColor={setColor}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
-      />
-
-      <Konva
-        tool={tool}
-        lines={lines}
-        setLines={setLines}
-        shapes={shapes}
-        setShapes={setShapes}
-        texts={texts}
-        setTexts={setTexts}
-        tables={tables}
-        setTables={setTables}
-        color={color}
-        strokeWidth={strokeWidth}
+      <Bottom tool={tool} setTool={setTool} texts={texts} setTexts={setTexts} color={color} setColor={setColor} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
+      /> 
+      <Konva tool={tool} lines={lines} setLines={setLines} shapes={shapes} setShapes={setShapes} texts={texts} setTexts={setTexts} tables={tables} setTables={setTables} color={color} strokeWidth={strokeWidth}
       />
     </>
   );
