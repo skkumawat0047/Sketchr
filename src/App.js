@@ -9,6 +9,9 @@ import Dashboard from './page/Dashboard'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  if(isLoggedIn){
+    console.log("I am login")
+  }
   return (
     <div className="App">
       <header className="App-header">

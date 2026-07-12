@@ -124,7 +124,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
         />
       )}
 
-      <div className="relative w-full h-fit border-2 border-gray-400 bg-gray-300 shadow-lg overflow-hidden">
+      <div className="bg-gray-300 overflow-hidden">
         <Stage
           ref={stageRef} 
           width={window.innerWidth} 

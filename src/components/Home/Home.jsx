@@ -69,7 +69,7 @@ const Home = () => {
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
         shapeType={shapeType} setShapeType={setShapeType} // Ye add kiya
         tableConfig={tableConfig} setTableConfig={setTableConfig} // Ye add kiya
-         handleUndo={handleUndo} //  /* Ye add karein */
+        handleUndo={handleUndo} //  /* Ye add karein */
         handleRedo={handleRedo}
       /> 
       

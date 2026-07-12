@@ -3,7 +3,6 @@ import Pen from '../ShapeColorPen/Pen'
 import Shape from '../ShapeColorPen/Shape';
 import Color from '../ShapeColorPen/Color';
 import Table from '../ShapeColorPen/Table';
-import { Pointer } from 'lucide-react';
 
 const Bottom = ({ tool, setTool, texts, setTexts, color, setColor, strokeWidth, setStrokeWidth, shapeType, setShapeType, tableConfig, setTableConfig, handleUndo, handleRedo}) => {
     
@@ -29,7 +28,7 @@ const Bottom = ({ tool, setTool, texts, setTexts, color, setColor, strokeWidth, 
         window.removeEventListener('mousedown', handleGlobalClick);
         window.removeEventListener('touchstart', handleGlobalClick);
       };
-    }, []);
+    }, [tool]);
 
     // Jab bhi kisi tool icon (niche wale button) par click ho, to popup ko wapas dikha do
     const handleToolClick = (newTool) => {
