@@ -1,5 +1,3 @@
-import React from 'react'
-
 export const COLORS = {
   paper: "#F7F2E9",
   ink: "#22201B",
