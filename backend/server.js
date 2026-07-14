@@ -10,6 +10,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/Sketchr")
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
+console.log("Schema:", Schema,"objectid",ObjectId)
 
 const CanvasSchema = new mongoose.Schema({
     title: {
