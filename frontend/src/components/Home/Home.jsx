@@ -57,29 +57,62 @@ const Home = () => {
   };
   // --- NAYA CODE YAHAN KHATAM ---
 
+  // sending data to backend using api
+  const saveBoard = async () => {
+    console.log("I am running");
+    try {
+      const boardData = {
+        title: "My Board",
+        owner: "64b7d6e3c5f1234567890001", // Login ke baad user ki id
+        elements: {
+          lines,
+          shapes,
+          texts,
+          tables
+        }
+      };
+
+      const response = await fetch("http://localhost:5000/api/boards/createboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(boardData)
+      });
+
+      const result = await response.json();
+
+      console.log(result);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+
+
   return (
     <>
-      <Navbar />
+      <Navbar onSave={saveBoard} />
       <Sidebar />
 
-        <Bottom 
-        tool={tool} setTool={setTool} 
-        texts={texts} setTexts={setTexts} 
-        color={color} setColor={setColor} 
+      <Bottom
+        tool={tool} setTool={setTool}
+        texts={texts} setTexts={setTexts}
+        color={color} setColor={setColor}
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
         shapeType={shapeType} setShapeType={setShapeType} // Ye add kiya
         tableConfig={tableConfig} setTableConfig={setTableConfig} // Ye add kiya
         handleUndo={handleUndo} //  /* Ye add karein */
         handleRedo={handleRedo}
-      /> 
-      
-      <Konva 
-        tool={tool} 
-        lines={lines} setLines={setLines} 
-        shapes={shapes} setShapes={setShapes} 
-        texts={texts} setTexts={setTexts} 
-        tables={tables} setTables={setTables} 
-        color={color} 
+      />
+
+      <Konva
+        tool={tool}
+        lines={lines} setLines={setLines}
+        shapes={shapes} setShapes={setShapes}
+        texts={texts} setTexts={setTexts}
+        tables={tables} setTables={setTables}
+        color={color}
         strokeWidth={strokeWidth}
         shapeType={shapeType} // Ye add kiya
         tableConfig={tableConfig} // Ye add kiya

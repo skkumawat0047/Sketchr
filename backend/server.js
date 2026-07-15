@@ -1,80 +1,22 @@
-const mongoose = require("mongoose");
+const express = require('express');
+const cors = require('cors');
+const router = require('./src/routes/boardroutes');
+require("./src/config/database");
+const app = express();
+const port = 5000;
 
-mongoose.connect("mongodb://127.0.0.1:27017/Sketchr")
-  .then(() => {
-    console.log("MongoDB Connected Successfully");
-  })
-  .catch((err) => {
-    console.log("MongoDB Connection Error:", err);
-  });
+app.use(cors());
+app.use(express.json());
 
-const Schema = mongoose.Schema;
-const ObjectId = Schema.ObjectId;
-console.log("Schema:", Schema,"objectid",ObjectId)
+app.use("/api/boards", router);
 
-const CanvasSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        default: "Untitled Canvas"
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
-    elements: [
-        {
-            id: {
-                type: String,
-                required: true
-            },
-            
-            type: {
-                type: String,
-                required: true,
-                enum: [
-                    "line",
-                    "rect",
-                    "circle",
-                    "ellipse",
-                    "arrow",
-                    "text",
-                    "table"
-                ]
-            },
-            x: {
-                type: Number,
-                default: 0
-            },
-            y: {
-                type: Number,
-                default: 0
-            },
-            zIndex: {
-                type: Number,
-                default: 0
-            },
-            rotation: {
-                type: Number,
-                default: 0
-            },
-            visible: {
-                type: Boolean,
-                default: true
-            },
-            locked: {
-                type: Boolean,
-                default: false
-            },
-            element: {
-                type: mongoose.Schema.Types.Mixed,
-                default: {}
-            }
-        }
-    ]
-},
-{
-    timestamps: true
-});
+app.get('/',(req,res)=>{
+    res.send("Hello user!");
+})
+app.get('/test',(req,res)=>{
+    res.send("user testing verified!");
+})
 
-module.exports = mongoose.model("Canvas", CanvasSchema);
+app.listen(port,()=>{
+    console.log("server is running properly!")
+})
