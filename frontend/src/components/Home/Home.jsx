@@ -59,11 +59,10 @@ const Home = () => {
 
   // sending data to backend using api
   const saveBoard = async () => {
-    console.log("I am running");
     try {
       const boardData = {
         title: "My Board",
-        owner: "64b7d6e3c5f1234567890001", // Login ke baad user ki id
+        owner: "64b7d6e3c5f1234567890001",
         elements: {
           lines,
           shapes,
@@ -72,17 +71,35 @@ const Home = () => {
         }
       };
 
-      const response = await fetch("http://localhost:5000/api/boards/createboard", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(boardData)
-      });
+      let response;
+      if (boardId) {
+        // Update Existing Board
+        response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(boardData)
+        });
+      } else {
+        // Create New Board
+        response = await fetch("http://localhost:5000/api/boards/createboard", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(boardData)
+        });
+      }
 
       const result = await response.json();
-
       console.log(result);
+      // Agar naya board create hua hai to uska id save kar lo
+      if (!boardId) {
+        setBoardId(result._id);
+      }
+
+      alert(boardId ? "Board Updated" : "Board Created");
     } catch (err) {
       console.log(err);
     }
