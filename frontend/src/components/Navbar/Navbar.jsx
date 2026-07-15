@@ -2,7 +2,7 @@ import React from "react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
 
-const Navbar = () => {
+const Navbar = ({onSave}) => {
   return (
     <>
       <style>{`
@@ -38,7 +38,7 @@ const Navbar = () => {
 
           <button
             className="px-4 py-2 rounded-md bg-sky-500 hover:bg-sky-600 text-white cursor-pointer transition"
-            title="Save"
+            title="Save" onClick={onSave}
           >
             <i className="fa-solid fa-cloud-arrow-up"></i>
           </button>
