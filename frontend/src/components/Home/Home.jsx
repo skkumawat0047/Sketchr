@@ -58,6 +58,7 @@ const Home = () => {
   // --- NAYA CODE YAHAN KHATAM ---
 
   // sending data to backend using api
+  const [boardId,setBoardId] = useState(null)
   const saveBoard = async () => {
     try {
       const boardData = {
@@ -74,6 +75,7 @@ const Home = () => {
       let response;
       if (boardId) {
         // Update Existing Board
+        console.log(boardId)
         response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
           method: "PUT",
           headers: {
@@ -95,7 +97,7 @@ const Home = () => {
       const result = await response.json();
       console.log(result);
       // Agar naya board create hua hai to uska id save kar lo
-      if (!boardId) {
+      if (!boardId && result) {
         setBoardId(result._id);
       }
 
