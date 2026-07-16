@@ -118,7 +118,7 @@ const Home = () => {
       }
 
       const data = await response.json();
-      console.log("respose: ",data)
+      console.log("respose: ", data)
       setLines(data.elements.lines || []);
       setShapes(data.elements.shapes || []);
       setTexts(data.elements.texts || []);
@@ -143,7 +143,7 @@ const Home = () => {
 
   return (
     <>
-      <Navbar onSave={saveBoard}/>
+      <Navbar onSave={saveBoard} />
       <Sidebar />
 
       <Bottom

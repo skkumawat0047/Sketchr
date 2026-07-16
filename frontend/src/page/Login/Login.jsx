@@ -18,22 +18,53 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
   const [error, setError] = useState("");
   const navigate = useNavigate()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+
     if (!email || !password) {
       setError("Please fill in both fields.");
       return;
     }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
+
     setError("");
-    if(email==="sk.kumawat0047@gmail.com" && password==="sanjay2325"){
-      navigate('/Dashboard')
-    }
-    onLoginSuccess();
+
+    await userLogin();
   }
+
+  const userLogin = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/user/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    email,
+    password,
+  }),
+});
+
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message);
+      return;
+    }
+
+    alert("Login Successful");
+    navigate("/Dashboard");
+
+  } catch (error) {
+    console.error("Fetch Error:", error);
+    setError(error.message);
+  }
+};
 
   return (
     <div style={styles.page}>
@@ -102,7 +133,7 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
 
           <p style={styles.footerText}>
             First time here?{" "}
-            <span onClick={()=>navigate('/Register')} style={styles.link}>
+            <span onClick={() => navigate('/Register')} style={styles.link}>
               Create an account
             </span>
           </p>
