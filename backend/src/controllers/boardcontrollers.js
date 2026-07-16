@@ -10,9 +10,8 @@ exports.createBoard = async (req, res) => {
 };
 
 exports.getBoard = async (req, res) => {
-    console.log("Controller Hit");
+    console.log("get request Hit");
     console.log(req.params.id);
-
     try {
         const board = await Canvas.findById(req.params.id);
         res.json(board);
@@ -38,16 +37,3 @@ exports.updateBoard = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-
-// exports.getBoard = async (req, res) => {
-//     try {
-//         const board = await Canvas.findById(req.params.id);
-//         console.log("hello I am getBoard");
-
-//         if (!board)
-//             return res.status(404).json({ message: "Board not found" });
-//         res.json(board);
-//     } catch (err) {
-//         res.status(500).json({ message: err.message });
-//     }
-// };

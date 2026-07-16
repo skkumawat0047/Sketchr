@@ -58,7 +58,7 @@ const Home = () => {
   // --- NAYA CODE YAHAN KHATAM ---
 
   // sending data to backend using api
-  const [boardId,setBoardId] = useState(null)
+  const [boardId, setBoardId] = useState(null)
   const saveBoard = async () => {
     try {
       const boardData = {
@@ -107,11 +107,43 @@ const Home = () => {
     }
   };
 
+  //fetching data of existing board using api
+  let id = "6a58a701e825d0b9c6e14b9d";
+  const getBoard = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/boards/${id}`);
 
+      if (!response.ok) {
+        throw new Error("Board not found");
+      }
+
+      const data = await response.json();
+      console.log("respose: ",data)
+      setLines(data.elements.lines || []);
+      setShapes(data.elements.shapes || []);
+      setTexts(data.elements.texts || []);
+      setTables(data.elements.tables || []);
+
+      setBoardId(data._id);
+
+      setHistory([
+        {
+          lines: data.elements.lines || [],
+          shapes: data.elements.shapes || [],
+          texts: data.elements.texts || [],
+          tables: data.elements.tables || [],
+        },
+      ]);
+      setHistoryStep(0);
+      alert("Board Loaded Successfully");
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
-      <Navbar onSave={saveBoard} />
+      <Navbar onSave={saveBoard}/>
       <Sidebar />
 
       <Bottom
