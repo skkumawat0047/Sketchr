@@ -19,23 +19,60 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
   const [error, setError] = useState("");
   const navigate = useNavigate()
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!name || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    setError("");
-    onRegisterSuccess();
+  async function handleSubmit(e) {
+  e.preventDefault();
+
+  if (!name || !email || !password || !confirmPassword) {
+    setError("Please fill in all fields.");
+    return;
   }
+
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
+
+  setError("");
+
+  await createUser();
+}
+
+  const createUser = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message);
+        return;
+      }
+
+      alert("Account Created Successfully");
+
+      // Register ke baad login page par bhej do
+      navigate("/Login");
+
+    } catch (error) {
+      console.error(error);
+      setError("Server Error");
+    }
+  };
 
   return (
     <div style={styles.page}>
@@ -124,7 +161,7 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
 
           <p style={styles.footerText}>
             Already sketching with us?{" "}
-            <span onClick={()=>navigate('/Login')} style={styles.link}>
+            <span onClick={() => navigate('/Login')} style={styles.link}>
               Log in
             </span>
           </p>
