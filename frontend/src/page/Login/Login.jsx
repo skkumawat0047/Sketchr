@@ -38,7 +38,8 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
 
   const userLogin = async () => {
     try {
-      const res = await fetch("http://localhost:5000/user/login", {
+      // const res = await fetch("http://localhost:5000/user/login", {
+      const res = await fetch("https://sketchr.onrender.com/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
