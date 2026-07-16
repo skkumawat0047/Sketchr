@@ -37,34 +37,34 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
   }
 
   const userLogin = async () => {
-  try {
-    const res = await fetch("http://localhost:5000/user/login", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    email,
-    password,
-  }),
-});
+    try {
+      const res = await fetch("http://localhost:5000/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.message);
-      return;
+      if (!res.ok) {
+        setError(data.message);
+        return;
+      }
+
+      alert("Login Successful");
+      navigate("/Dashboard");
+
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      setError(error.message);
     }
-
-    alert("Login Successful");
-    navigate("/Dashboard");
-
-  } catch (error) {
-    console.error("Fetch Error:", error);
-    setError(error.message);
-  }
-};
+  };
 
   return (
     <div style={styles.page}>
