@@ -63,40 +63,65 @@ const CanvasSchema = new mongoose.Schema(
       type: String,
       default: "Untitled Board",
     },
-
+    
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-
+    
     collaborators: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        role: {
+          type: String,
+          enum: ["viewer", "editor"],
+          default: "viewer",
+        },
+      },
+    ],
+    
+    // ⭐ Starred users
+    starredBy: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
+    
+    // 🗑 Trash
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    
+    // Optional thumbnail
+    thumbnail: {
+      type: String,
+      default: "",
+    },
+    
     elements: {
       lines: {
         type: [LineSchema],
         default: [],
       },
-
       shapes: {
         type: [ShapeSchema],
         default: [],
       },
-
       texts: {
         type: [TextSchema],
         default: [],
       },
-
       tables: {
         type: [TableSchema],
         default: [],
       },
-    }
+    },
   },
   {
     timestamps: true,
