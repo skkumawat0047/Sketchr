@@ -1,8 +1,15 @@
 import React from "react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
+import { useEffect } from "react";
 
-const Navbar = ({onSave}) => {
+const Navbar = ({ onSave }) => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      onSave();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [onSave])
   return (
     <>
       <style>{`

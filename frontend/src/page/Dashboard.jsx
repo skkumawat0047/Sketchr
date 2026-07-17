@@ -22,31 +22,40 @@ const QUICK_ACTIONS = [
 
 const TABS = ["All boards", "Shared with me", "Starred"];
 
-const BOARDS = [
-  { title: "Q3 Roadmap Sketch", edited: "2 hours ago", accent: COLORS.primary, people: 3 },
-  { title: "Onboarding Flow v2", edited: "Yesterday", accent: COLORS.mint, people: 5 },
-  { title: "Brand Moodboard", edited: "3 days ago", accent: COLORS.sun, people: 2 },
-  { title: "Team Retro — June", edited: "1 week ago", accent: COLORS.secondary, people: 6 },
-  { title: "App Wireframes", edited: "1 week ago", accent: COLORS.primary, people: 1 },
-  { title: "Untitled Board", edited: "2 weeks ago", accent: COLORS.mint, people: 1 },
-];
-
 export default function HomePage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("All boards");
   const navigate = useNavigate();
+  const [BOARDS, setBoards] = useState([
+    { title: "new Sketch", edited: "now ", accent: COLORS.primary, people: 3 }
+  ])
 
   const getAllBoards = async () => {
     try {
-      const userId = localStorage.getItem("userId")
-      console.log(userId);
+      const userId = localStorage.getItem("userId");
+
       if (!userId) throw new Error("User not found");
-      const response = await fetch(`https://sketchr.onrender.com/user/allboards/${userId}`);
-      if (!response.ok) {
-        throw new Error("Boards not found");
-      }
+
+      const response = await fetch(`http://localhost:5000/user/allboard/${userId}`);
+
       const data = await response.json();
-      console.log("respose: ", data)
+
+      const formattedBoards = data.map((board, index) => ({
+        title: board.title || "Untitled Board",
+        edited: new Date(board.updatedAt).toLocaleDateString(),
+        id: board._id,
+        accent: [
+          COLORS.primary,
+          COLORS.mint,
+          COLORS.sun,
+          COLORS.secondary
+        ][index % 4],
+        people: board.collaborators?.length || 1,
+        id: board._id,
+        thumbnail: board.thumbnail,
+      }));
+
+      setBoards(formattedBoards);
 
     } catch (err) {
       console.log(err);
@@ -89,7 +98,7 @@ export default function HomePage() {
         <div style={styles.pillRow}>
           {QUICK_ACTIONS.map((e) => {
             return (
-              <button key={e.label} style={styles.pill} onClick={() => navigate(`/${e.go}`)}>
+              <button key={e.label} style={{...styles.boardRow, cursor: "pointer" }} onClick={() => navigate(`/${e.go}`)}>
                 <e.icon size={16} />
                 {e.label}
               </button>
@@ -132,7 +141,7 @@ export default function HomePage() {
         {/* BOARD LIST — compact rows instead of a card grid */}
         <div style={styles.boardList}>
           {BOARDS.map((b) => (
-            <div key={b.title} style={styles.boardRow}>
+            <div key={b.id} style={styles.boardRow} onClick={() => navigate(`/board/${b.id}`)}>
               <div style={{ ...styles.boardSwatch, background: b.accent }} />
               <div style={styles.boardInfo}>
                 <div style={styles.boardTitle}>{b.title}</div>

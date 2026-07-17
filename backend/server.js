@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use("/api/boards", router);
 app.use("/user", user_route);
-app.use("/user/allboards", user_board_router);
+app.use("/user/allboard", user_board_router);
 app.get('/',(req,res)=>{
     res.send("Hello user!");
 })
