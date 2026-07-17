@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import Bottom from "../Bottombar/Bottom";
 import Sidebar from "../Sidebar/Sidebar";
 import Konva from "../Konva/Konva";
+import { useParams } from "react-router-dom";
+
 
 const Home = () => {
+
+  const { id } = useParams();
   // Tool
   const [tool, setTool] = useState("pen");
 
@@ -58,12 +62,12 @@ const Home = () => {
   // --- NAYA CODE YAHAN KHATAM ---
 
   // sending data to backend using api
-  const [boardId, setBoardId] = useState(null)
+  const [boardId, setBoardId] = useState(id || null);
   const saveBoard = async () => {
     try {
       const boardData = {
         title: "My Board",
-        owner: "64b7d6e3c5f1234567890001",
+        owner: localStorage.getItem("userId"),
         elements: {
           lines,
           shapes,
@@ -76,7 +80,8 @@ const Home = () => {
       if (boardId) {
         // Update Existing Board
         console.log(boardId)
-        response = await fetch(`https://sketchr.onrender.com/api/boards/${boardId}`, {
+        // response = await fetch(`https://sketchr.onrender.com/api/boards/${boardId}`, {
+        response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"
@@ -85,7 +90,8 @@ const Home = () => {
         });
       } else {
         // Create New Board
-        response = await fetch("https://sketchr.onrender.com/api/boards/createboard", {
+        // response = await fetch("https://sketchr.onrender.com/api/boards/createboard", {
+        response = await fetch("http://localhost:5000/api/boards/createboard", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -100,18 +106,17 @@ const Home = () => {
       if (!boardId && result) {
         setBoardId(result._id);
       }
-
-      alert(boardId ? "Board Updated" : "Board Created");
+      alert(result._id ? "Board Saved" : "Error Saving Board");
     } catch (err) {
       console.log(err);
     }
   };
 
   //fetching data of existing board using api
-  let id = "6a58a701e825d0b9c6e14b9d";
   const getBoard = async (id) => {
     try {
-      const response = await fetch(`https://sketchr.onrender.com/api/boards/${id}`);
+      // const response = await fetch(`https://sketchr.onrender.com/api/boards/${id}`);
+      const response = await fetch(`http://localhost:5000/api/boards/${id}`);
 
       if (!response.ok) {
         throw new Error("Board not found");
@@ -140,6 +145,11 @@ const Home = () => {
       console.log(err);
     }
   };
+  useEffect(() => {
+    if (id) {
+      getBoard(id);
+    }
+  }, [id]);
 
   return (
     <>

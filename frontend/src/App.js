@@ -20,7 +20,8 @@ function App() {
             <Route path="/login" element={<Login onLoginSuccess={()=>setIsLoggedIn(true)}/>} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/Dashboard" element={<Dashboard />} />
-            <Route path="/Home" element={<Home />} />
+            <Route path="/board/new" element={<Home />} />
+            <Route path="/board/:id" element={<Home />} />
           </Routes>
       </header>
     </div>

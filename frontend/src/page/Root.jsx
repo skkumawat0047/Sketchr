@@ -65,7 +65,7 @@ export default function LandingPage() {
             placement — all in real time, all in one place.
           </p>
           <div style={styles.heroButtons}>
-            <button style={styles.primaryButton} onClick={() => navigate("/Home")}>
+            <button style={styles.primaryButton} onClick={() => navigate("/board/new")}>
               Open a board <ArrowRight size={17} />
             </button>
             <button style={styles.ghostButton} onClick={() => navigate("/Login")}>
