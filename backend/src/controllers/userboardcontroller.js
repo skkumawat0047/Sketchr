@@ -3,7 +3,12 @@ const Canvas = require('../models/Canvas');
 
 exports.allboard = async (req, res) => {
   try {
-    const allboard = await Canvas.find({ owner: req.params.id });
+    console.log(req.params.userId); // check
+
+    const allboard = await Canvas.find({
+      owner: req.params.userId,
+    });
+
     res.json(allboard);
   } catch (err) {
     console.log(err);
@@ -11,4 +16,4 @@ exports.allboard = async (req, res) => {
       message: err.message,
     });
   }
-}
+};
