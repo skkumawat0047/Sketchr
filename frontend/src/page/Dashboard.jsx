@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search, Plus, LayoutTemplate, Upload, DoorOpen,
   Star, Trash2, MoreHorizontal
 } from "lucide-react";
 import SketchrLogo from "./Login/SketchrLogo";
 import { useNavigate } from "react-router-dom";
-import { styles,COLORS } from "./Login/styles";
+import { styles, COLORS } from "./Login/styles";
 
 /**
  * Sketchr — Home / Dashboard
@@ -14,10 +14,10 @@ import { styles,COLORS } from "./Login/styles";
  */
 
 const QUICK_ACTIONS = [
-  { icon: Plus, label: "Blank board",go:"Home"},
-  { icon: LayoutTemplate, label: "From a template",go:"Home" },
-  { icon: Upload, label: "Import a file",go:"Home" },
-  { icon: DoorOpen, label: "Join a room",go:"Home" },
+  { icon: Plus, label: "Blank board", go: "Home" },
+  { icon: LayoutTemplate, label: "From a template", go: "Home" },
+  { icon: Upload, label: "Import a file", go: "Home" },
+  { icon: DoorOpen, label: "Join a room", go: "Home" },
 ];
 
 const TABS = ["All boards", "Shared with me", "Starred"];
@@ -35,6 +35,26 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("All boards");
   const navigate = useNavigate();
+
+  const getAllBoards = async () => {
+    try {
+      const userId = localStorage.getItem("userId")
+      console.log(userId);
+      if (!userId) throw new Error("User not found");
+      const response = await fetch(`https://sketchr.onrender.com/user/allboards/${userId}`);
+      if (!response.ok) {
+        throw new Error("Boards not found");
+      }
+      const data = await response.json();
+      console.log("respose: ", data)
+
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    getAllBoards();
+  }, []);
 
   return (
     <div style={styles.page}>
@@ -67,15 +87,15 @@ export default function HomePage() {
 
         {/* QUICK ACTIONS — horizontal pill strip */}
         <div style={styles.pillRow}>
-          {QUICK_ACTIONS.map((e)=>{
+          {QUICK_ACTIONS.map((e) => {
             return (
-            <button key={e.label} style={styles.pill} onClick={()=>navigate(`/${e.go}`)}>
-              <e.icon size={16} />
-              {e.label}
-            </button>
+              <button key={e.label} style={styles.pill} onClick={() => navigate(`/${e.go}`)}>
+                <e.icon size={16} />
+                {e.label}
+              </button>
             )
           })}
-            {/* <button key={"sdkfj"} style={styles.pill}>
+          {/* <button key={"sdkfj"} style={styles.pill}>
               <Plus size={16} />
               "Blank board"
             </button>
