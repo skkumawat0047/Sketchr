@@ -68,7 +68,7 @@ export const styles = {
   greeting: {
     fontFamily: "'Gochi Hand', cursive",
     fontSize: "40px",
-    margin: "0 0 4px",
+    margin: "40px 0 4px",
   },
   subtext: { color: COLORS.pencil, fontSize: "14.5px", marginBottom: "28px" },
   pillRow: { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "32px" },

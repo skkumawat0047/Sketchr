@@ -14,10 +14,10 @@ import { styles, COLORS } from "./Login/styles";
  */
 
 const QUICK_ACTIONS = [
-  { icon: Plus, label: "Blank board", go: "Home" },
-  { icon: LayoutTemplate, label: "From a template", go: "Home" },
-  { icon: Upload, label: "Import a file", go: "Home" },
-  { icon: DoorOpen, label: "Join a room", go: "Home" },
+  { icon: Plus, label: "Blank board", go: "/board/new" },
+  { icon: LayoutTemplate, label: "From a template", go: "/board/new" },
+  { icon: Upload, label: "Import a file", go: "/board/new" },
+  { icon: DoorOpen, label: "Join a room", go: "/board/new" },
 ];
 
 const TABS = ["All boards", "Shared with me", "Starred"];
@@ -69,7 +69,7 @@ export default function HomePage() {
     <div style={styles.page}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Architects+Daughter&family=Manrope:wght@400;500;600;700;800&display=swap');`}</style>
 
-      <nav style={styles.nav}>
+      <nav style={styles.nav} className="fixed w-full">
         <div style={styles.brand}>
           <SketchrLogo size={30} />
           Sketchr

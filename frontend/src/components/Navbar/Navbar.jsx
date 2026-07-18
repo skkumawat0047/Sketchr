@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
 import { useEffect } from "react";
 
-const Navbar = ({ onSave }) => {
-  useEffect(() => {
-    const interval = setInterval(() => {
-      onSave();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [onSave])
+const Navbar = ({ onSave,title,setTitle}) => {
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     onSave();
+  //   }, 30000);
+  //   return () => clearInterval(interval);
+  // }, [onSave])
   return (
     <>
       <style>{`
@@ -18,7 +18,6 @@ const Navbar = ({ onSave }) => {
       html { scroll-behavior: smooth; }
       body { margin: 0; }
     `}</style>
-
       <nav
         style={{
           ...styles.nav,
@@ -29,8 +28,7 @@ const Navbar = ({ onSave }) => {
         }}
       >
         <div style={styles.brand}>
-          <SketchrLogo size={30} />
-          Sketchr
+          <SketchrLogo size={30} />Sketchr<input type="text" value={title} onChange={(e) => { setTitle(e.target.value); }} className="font-light text-[20px] opacity-55 ml-4 border-[1px] border-black rounded-md px-1 overflow-hidden" />
         </div>
 
 

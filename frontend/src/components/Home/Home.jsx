@@ -10,6 +10,7 @@ const Home = () => {
 
   const { id } = useParams();
   // Tool
+  const [title,setTitle] = useState("Untitled board")
   const [tool, setTool] = useState("pen");
 
   // Nayi States Shapes aur Table selection ke liye
@@ -66,7 +67,7 @@ const Home = () => {
   const saveBoard = async () => {
     try {
       const boardData = {
-        title: "My Board",
+        title: title,
         owner: localStorage.getItem("userId"),
         elements: {
           lines,
@@ -153,7 +154,7 @@ const Home = () => {
 
   return (
     <>
-      <Navbar onSave={saveBoard} />
+      <Navbar onSave={saveBoard} title={title} setTitle={setTitle} />
       <Sidebar />
 
       <Bottom
