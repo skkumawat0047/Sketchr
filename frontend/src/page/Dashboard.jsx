@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, act } from "react";
 import {
   Search, Plus, LayoutTemplate, Upload, DoorOpen,
   Star, Trash2, MoreHorizontal
@@ -14,23 +14,27 @@ import { styles, COLORS } from "./Login/styles";
  */
 
 const QUICK_ACTIONS = [
-  { icon: Plus, label: "Blank board", go: "Home" },
-  { icon: LayoutTemplate, label: "From a template", go: "Home" },
-  { icon: Upload, label: "Import a file", go: "Home" },
-  { icon: DoorOpen, label: "Join a room", go: "Home" },
+  { icon: Plus, label: "Blank board", go: "/board/new" },
+  { icon: LayoutTemplate, label: "From a template", go: "/board/new" },
+  { icon: Upload, label: "Import a file", go: "/board/new" },
+  { icon: DoorOpen, label: "Join a room", go: "/board/new" },
 ];
 
-const TABS = ["All boards", "Shared with me", "Starred"];
+const TABS = ["All boards", "Shared with me", "Starred", "Trash"];
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("All boards");
   const navigate = useNavigate();
-  const [BOARDS, setBoards] = useState([
-    { title: "new Sketch", edited: "now ", accent: COLORS.primary, people: 3 }
-  ])
+  const [boardsData, setBoardsData] = useState({
+    ownedBoards: [],
+    sharedBoards: [],
+    starredBoards: [],
+    trashBoards: [],
+  });
+  const [formattedBoards, setformattedBoards] = useState([]);
 
-  const getAllBoards = async () => {
+  const getAllBoards = async (tab = activeTab) => {
     try {
       const userId = localStorage.getItem("userId");
 
@@ -39,8 +43,13 @@ export default function HomePage() {
       const response = await fetch(`http://localhost:5000/user/allboard/${userId}`);
 
       const data = await response.json();
+      // get data from object which is fetching from backend
+      const boards = activeTab === "All boards" ? data.ownedBoards
+        : activeTab === "Shared with me" ? data.sharedBoards
+          : activeTab === "Starred" ? data.starredBoards
+            : data.trashBoards;
 
-      const formattedBoards = data.map((board, index) => ({
+      const formatted = boards.map((board, index) => ({
         title: board.title || "Untitled Board",
         edited: new Date(board.updatedAt).toLocaleDateString(),
         id: board._id,
@@ -51,25 +60,24 @@ export default function HomePage() {
           COLORS.secondary
         ][index % 4],
         people: board.collaborators?.length || 1,
-        id: board._id,
         thumbnail: board.thumbnail,
       }));
-
-      setBoards(formattedBoards);
-
+      setformattedBoards(formatted);
+      setBoardsData(data);
     } catch (err) {
       console.log(err);
     }
   };
+
   useEffect(() => {
-    getAllBoards();
-  }, []);
+    getAllBoards(activeTab);
+  }, [activeTab]);
 
   return (
     <div style={styles.page}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Architects+Daughter&family=Manrope:wght@400;500;600;700;800&display=swap');`}</style>
 
-      <nav style={styles.nav}>
+      <nav style={styles.nav} className="fixed w-full">
         <div style={styles.brand}>
           <SketchrLogo size={30} />
           Sketchr
@@ -84,8 +92,6 @@ export default function HomePage() {
           />
         </div>
         <div style={styles.navRight}>
-          <button style={styles.iconButton}><Star size={17} /></button>
-          <button style={styles.iconButton}><Trash2 size={17} /></button>
           <div style={styles.avatar}>A</div>
         </div>
       </nav>
@@ -98,28 +104,12 @@ export default function HomePage() {
         <div style={styles.pillRow}>
           {QUICK_ACTIONS.map((e) => {
             return (
-              <button key={e.label} style={{...styles.boardRow, cursor: "pointer" }} onClick={() => navigate(`/${e.go}`)}>
+              <button key={e.label} style={{ ...styles.boardRow, cursor: "pointer" }} onClick={() => navigate(e.go)}>
                 <e.icon size={16} />
                 {e.label}
               </button>
             )
           })}
-          {/* <button key={"sdkfj"} style={styles.pill}>
-              <Plus size={16} />
-              "Blank board"
-            </button>
-            <button key={"sdkfj"} style={styles.pill}>
-              <LayoutTemplate size={16} />
-              "Blank board"
-            </button>
-            <button key={"sdkfj"} style={styles.pill}>
-              <Upload size={16} />
-              "Blank board"
-            </button>
-            <button key={"sdkfj"} style={styles.pill}>
-              <DoorOpen size={16} />
-              "Blank board"
-            </button> */}
         </div>
 
         {/* FILTER TABS */}
@@ -140,14 +130,14 @@ export default function HomePage() {
 
         {/* BOARD LIST — compact rows instead of a card grid */}
         <div style={styles.boardList}>
-          {BOARDS.map((b) => (
+          {formattedBoards.map((b) => (
             <div key={b.id} style={styles.boardRow} onClick={() => navigate(`/board/${b.id}`)}>
               <div style={{ ...styles.boardSwatch, background: b.accent }} />
               <div style={styles.boardInfo}>
                 <div style={styles.boardTitle}>{b.title}</div>
                 <div style={styles.boardMeta}>Edited {b.edited} · {b.people} people</div>
               </div>
-              <button style={styles.moreButton}><MoreHorizontal size={18} /></button>
+              <button style={styles.moreButton} onClick={(e) => e.stopPropagation()}><MoreHorizontal size={18} /></button>
             </div>
           ))}
         </div>

@@ -19,7 +19,7 @@ export const styles = {
     display: "flex",
     alignItems: "center",
     gap: "24px",
-    padding: "16px 32px",
+    padding: "15px 5px 15px 20px",
     borderBottom: `1.5px solid ${COLORS.ink}`,
     background: "#fff",
   },
@@ -68,7 +68,7 @@ export const styles = {
   greeting: {
     fontFamily: "'Gochi Hand', cursive",
     fontSize: "40px",
-    margin: "0 0 4px",
+    margin: "40px 0 4px",
   },
   subtext: { color: COLORS.pencil, fontSize: "14.5px", marginBottom: "28px" },
   pillRow: { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "32px" },

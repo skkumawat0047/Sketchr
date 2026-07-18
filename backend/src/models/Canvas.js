@@ -93,10 +93,12 @@ const CanvasSchema = new mongoose.Schema(
     ],
     
     // 🗑 Trash
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
+    deletedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     
     // Optional thumbnail
     thumbnail: {
