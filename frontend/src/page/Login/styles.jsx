@@ -19,7 +19,7 @@ export const styles = {
     display: "flex",
     alignItems: "center",
     gap: "24px",
-    padding: "16px 32px",
+    padding: "15px 5px 15px 20px",
     borderBottom: `1.5px solid ${COLORS.ink}`,
     background: "#fff",
   },

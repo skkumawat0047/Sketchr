@@ -3,13 +3,27 @@ const Canvas = require('../models/Canvas');
 
 exports.allboard = async (req, res) => {
   try {
-    console.log(req.params.userId); // check
+    const userId = req.params.userId;
 
-    const allboard = await Canvas.find({
-      owner: req.params.userId,
+    const ownedBoards = await Canvas.find({
+      owner: userId,
+      $or: [{ deletedBy: { $exists: false } }, { deletedBy: { $size: 0 } }]
     });
 
-    res.json(allboard);
+    const starredBoards = await Canvas.find({
+      starredBy: userId,
+    });
+
+    const sharedBoards = await Canvas.find({
+      "collaborators.user": userId,
+    });
+
+    const trashBoards = await Canvas.find({
+      owner: userId,
+      deletedBy: userId,
+    });
+
+    res.json({ ownedBoards, starredBoards, sharedBoards, trashBoards });
   } catch (err) {
     console.log(err);
     res.status(500).json({

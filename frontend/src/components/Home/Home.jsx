@@ -81,6 +81,7 @@ const Home = () => {
       if (boardId) {
         // Update Existing Board
         console.log(boardId)
+        console.log(response)
         // response = await fetch(`https://sketchr.onrender.com/api/boards/${boardId}`, {
         response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
           method: "PUT",
@@ -129,9 +130,7 @@ const Home = () => {
       setShapes(data.elements.shapes || []);
       setTexts(data.elements.texts || []);
       setTables(data.elements.tables || []);
-
       setBoardId(data._id);
-
       setHistory([
         {
           lines: data.elements.lines || [],

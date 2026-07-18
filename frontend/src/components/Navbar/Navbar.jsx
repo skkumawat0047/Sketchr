@@ -28,7 +28,7 @@ const Navbar = ({ onSave,title,setTitle}) => {
         }}
       >
         <div style={styles.brand}>
-          <SketchrLogo size={30} />Sketchr<input type="text" value={title} onChange={(e) => { setTitle(e.target.value); }} className="font-light text-[20px] opacity-55 ml-4 border-[1px] border-black rounded-md px-1 overflow-hidden" />
+          <SketchrLogo size={35} />Sketchr<input type="text" value={title} onChange={(e) => { setTitle(e.target.value); }} className="font-light text-[20px] opacity-55 ml-4 border-[1px] border-black rounded-md px-1 overflow-hidden" />
         </div>
 
 
