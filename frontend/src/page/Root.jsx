@@ -21,7 +21,6 @@ const COLORS = {
   line: "#EAE3D3",
 };
 
-
 const STEPS = [
   { n: "1", title: "Open a board", text: "One click, no template forced on you." },
   { n: "2", title: "Share the link", text: "Anyone with it can join and draw instantly." },
