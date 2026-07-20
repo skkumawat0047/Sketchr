@@ -58,6 +58,7 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
         return;
       }
       localStorage.setItem("userId",data.userId);
+      localStorage.setItem("sketchr_user_name",data.userName);
       alert("Login Successful");
       navigate("/Dashboard");
 
