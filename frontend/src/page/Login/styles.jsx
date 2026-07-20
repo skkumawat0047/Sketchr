@@ -8,12 +8,16 @@ export const COLORS = {
   pencil: "#8B8478",
   line: "#EAE3D3",
 };
+
 export const styles = {
   page: {
-    minHeight: "100vh",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
     backgroundColor: COLORS.paper,
     fontFamily: "'Manrope', sans-serif",
     color: COLORS.ink,
+    overflow: "hidden",
   },
   nav: {
     display: "flex",
@@ -22,6 +26,8 @@ export const styles = {
     padding: "15px 5px 15px 20px",
     borderBottom: `1.5px solid ${COLORS.ink}`,
     background: "#fff",
+    flexShrink: 0,
+    zIndex: 10,                      // ताकि नवबार हमेशा सबसे ऊपर तैरता रहे
   },
   brand: {
     display: "flex",
@@ -64,14 +70,35 @@ export const styles = {
     justifyContent: "center",
     fontFamily: "'Architects Daughter', cursive",
   },
-  main: { maxWidth: "820px", margin: "0 auto", padding: "44px 24px 80px" },
+  main: { 
+    width: "100%",
+    maxWidth: "820px", 
+    margin: "0 auto", 
+    padding: "0 24px",
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+  },
   greeting: {
     fontFamily: "'Gochi Hand', cursive",
     fontSize: "40px",
-    margin: "40px 0 4px",
+    margin: "20px 0 4px",           // मार्जिन थोड़ा कम किया ताकि ऊपर स्पेस परफेक्ट दिखे
+    flexShrink: 0,
   },
-  subtext: { color: COLORS.pencil, fontSize: "14.5px", marginBottom: "28px" },
-  pillRow: { display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "32px" },
+  subtext: { 
+    color: COLORS.pencil, 
+    fontSize: "14.5px", 
+    marginBottom: "28px",
+    flexShrink: 0, 
+  },
+  pillRow: { 
+    display: "flex", 
+    gap: "10px", 
+    flexWrap: "wrap", 
+    marginBottom: "32px",
+    flexShrink: 0, 
+  },
   pill: {
     display: "flex",
     alignItems: "center",
@@ -89,6 +116,7 @@ export const styles = {
     gap: "6px",
     borderBottom: `1.5px solid ${COLORS.line}`,
     marginBottom: "6px",
+    flexShrink: 0, 
   },
   tab: {
     background: "none",
@@ -105,7 +133,15 @@ export const styles = {
     fontWeight: 700,
     borderBottom: `2.5px solid ${COLORS.primary}`,
   },
-  boardList: { display: "flex", flexDirection: "column" },
+  boardList: { 
+    display: "flex", 
+    flexDirection: "column",
+    flex: 1,
+    overflowY: "auto",
+    paddingBottom: "40px",
+    scrollbarWidth: "thin",          
+    scrollbarColor: "rgba(34, 32, 27, 0.25) transparent",
+  },
   boardRow: {
     display: "flex",
     alignItems: "center",
@@ -128,4 +164,4 @@ export const styles = {
     cursor: "pointer",
     color: COLORS.pencil,
   },
-}
+};

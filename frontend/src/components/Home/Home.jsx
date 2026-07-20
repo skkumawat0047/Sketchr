@@ -4,16 +4,16 @@ import Bottom from "../Bottombar/Bottom";
 import Sidebar from "../Sidebar/Sidebar";
 import Konva from "../Konva/Konva";
 import { useParams } from "react-router-dom";
-
+import { useNavigate} from "react-router-dom";
 
 const Home = () => {
-
   const { id } = useParams();
-  // Tool
-  const [title,setTitle] = useState("Untitled board")
+  const navigate = useNavigate();
+  // FIX 1: Start with an empty string so the placeholder can show up on new boards
+  const [title, setTitle] = useState(""); 
   const [tool, setTool] = useState("pen");
 
-  // Nayi States Shapes aur Table selection ke liye
+  // States for Shapes and Table selection
   const [shapeType, setShapeType] = useState("Rect");
   const [tableConfig, setTableConfig] = useState({ type: 'grid', rows: 3, cols: 3 });
 
@@ -60,14 +60,15 @@ const Home = () => {
     setHistory(newHistory);
     setHistoryStep(newHistory.length - 1);
   };
-  // --- NAYA CODE YAHAN KHATAM ---
 
-  // sending data to backend using api
+  // Sending data to backend using api
   const [boardId, setBoardId] = useState(id || null);
+  
   const saveBoard = async () => {
     try {
       const boardData = {
-        title: title,
+        // Fallback to "Untitled Board" in DB if user leaves it completely blank
+        title: title.trim() === "" ? "Untitled Board" : title,
         owner: localStorage.getItem("userId"),
         elements: {
           lines,
@@ -80,9 +81,6 @@ const Home = () => {
       let response;
       if (boardId) {
         // Update Existing Board
-        console.log(boardId)
-        console.log(response)
-        // response = await fetch(`https://sketchr.onrender.com/api/boards/${boardId}`, {
         response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
           method: "PUT",
           headers: {
@@ -92,7 +90,6 @@ const Home = () => {
         });
       } else {
         // Create New Board
-        // response = await fetch("https://sketchr.onrender.com/api/boards/createboard", {
         response = await fetch("http://localhost:5000/api/boards/createboard", {
           method: "POST",
           headers: {
@@ -103,21 +100,19 @@ const Home = () => {
       }
 
       const result = await response.json();
-      console.log(result);
-      // Agar naya board create hua hai to uska id save kar lo
+      console.log(result)
       if (!boardId && result) {
         setBoardId(result._id);
+        navigate(`/board/${result._id}`,{replace:true});
       }
-      alert(result._id ? "Board Saved" : "Error Saving Board");
     } catch (err) {
       console.log(err);
     }
   };
 
-  //fetching data of existing board using api
+  // Fetching data of existing board using api
   const getBoard = async (id) => {
     try {
-      // const response = await fetch(`https://sketchr.onrender.com/api/boards/${id}`);
       const response = await fetch(`http://localhost:5000/api/boards/${id}`);
 
       if (!response.ok) {
@@ -125,7 +120,10 @@ const Home = () => {
       }
 
       const data = await response.json();
-      console.log("respose: ", data)
+      console.log(data);
+      // FIX 2: Set the actual loaded board title into state here!
+      setTitle(data.title || ""); 
+      
       setLines(data.elements.lines || []);
       setShapes(data.elements.shapes || []);
       setTexts(data.elements.texts || []);
@@ -140,14 +138,22 @@ const Home = () => {
         },
       ]);
       setHistoryStep(0);
-      alert("Board Loaded Successfully");
     } catch (err) {
       console.log(err);
     }
   };
+
+  // Trigger loading when ID exists, or wipe states clean when route changes back to a new board
   useEffect(() => {
     if (id) {
       getBoard(id);
+    } else {
+      setTitle(""); 
+      setBoardId(null);
+      setLines([]);
+      setShapes([]);
+      setTexts([]);
+      setTables([]);
     }
   }, [id]);
 
@@ -161,9 +167,9 @@ const Home = () => {
         texts={texts} setTexts={setTexts}
         color={color} setColor={setColor}
         strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth}
-        shapeType={shapeType} setShapeType={setShapeType} // Ye add kiya
-        tableConfig={tableConfig} setTableConfig={setTableConfig} // Ye add kiya
-        handleUndo={handleUndo} //  /* Ye add karein */
+        shapeType={shapeType} setShapeType={setShapeType}
+        tableConfig={tableConfig} setTableConfig={setTableConfig}
+        handleUndo={handleUndo}
         handleRedo={handleRedo}
       />
 
@@ -175,9 +181,10 @@ const Home = () => {
         tables={tables} setTables={setTables}
         color={color}
         strokeWidth={strokeWidth}
-        shapeType={shapeType} // Ye add kiya
-        tableConfig={tableConfig} // Ye add kiya
+        shapeType={shapeType}
+        tableConfig={tableConfig}
         saveHistory={saveHistory}
+        onSave = {saveBoard}
       />
     </>
   );
