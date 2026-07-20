@@ -64,8 +64,6 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
         return;
       }
 
-      alert("Account Created Successfully");
-
       // Register ke baad login page par bhej do
       navigate("/Login");
 

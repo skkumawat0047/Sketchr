@@ -4,10 +4,11 @@ import Bottom from "../Bottombar/Bottom";
 import Sidebar from "../Sidebar/Sidebar";
 import Konva from "../Konva/Konva";
 import { useParams } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 
 const Home = () => {
   const { id } = useParams();
-  
+  const navigate = useNavigate();
   // FIX 1: Start with an empty string so the placeholder can show up on new boards
   const [title, setTitle] = useState(""); 
   const [tool, setTool] = useState("pen");
@@ -99,12 +100,11 @@ const Home = () => {
       }
 
       const result = await response.json();
-      console.log(result);
-      
+      console.log(result)
       if (!boardId && result) {
         setBoardId(result._id);
+        navigate(`/board/${result._id}`,{replace:true});
       }
-      alert(result._id ? "Board Saved" : "Error Saving Board");
     } catch (err) {
       console.log(err);
     }
@@ -120,8 +120,7 @@ const Home = () => {
       }
 
       const data = await response.json();
-      console.log("response: ", data);
-      
+      console.log(data);
       // FIX 2: Set the actual loaded board title into state here!
       setTitle(data.title || ""); 
       
@@ -139,7 +138,6 @@ const Home = () => {
         },
       ]);
       setHistoryStep(0);
-      alert("Board Loaded Successfully");
     } catch (err) {
       console.log(err);
     }
@@ -186,6 +184,7 @@ const Home = () => {
         shapeType={shapeType}
         tableConfig={tableConfig}
         saveHistory={saveHistory}
+        onSave = {saveBoard}
       />
     </>
   );

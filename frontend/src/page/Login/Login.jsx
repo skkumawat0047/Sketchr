@@ -52,14 +52,13 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
 
 
       const data = await res.json();
-      console.log(data);
       if (!res.ok) {
         setError(data.message);
         return;
       }
       localStorage.setItem("userId",data.userId);
       localStorage.setItem("sketchr_user_name",data.userName);
-      alert("Login Successful");
+      localStorage.setItem("sketchr_email_id",email);
       navigate("/Dashboard");
 
     } catch (error) {

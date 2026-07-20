@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layer, Stage, Text, Line, Rect, Circle, Ellipse, RegularPolygon, Arrow, Group } from "react-konva";
 
-const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig, saveHistory }) => {
+const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig, saveHistory,onSave}) => {
   const [zoom, setZoom] = useState(1);
   const [editingText, setEditingText] = useState(null);
   const [inputValue, setInputValue] = useState("");
@@ -76,6 +76,9 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
   const handleMouseUp = () => {
     if (isDrawing.current && tool !== 'mover') {
       saveHistory(lines, shapes, texts, tables);
+      if (onSave && typeof onSave === "function") {
+          onSave();
+        }
     }
     isDrawing.current = false;
   };
