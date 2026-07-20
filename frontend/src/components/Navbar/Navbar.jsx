@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React from "react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
 
