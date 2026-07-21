@@ -4,13 +4,13 @@ import Bottom from "../Bottombar/Bottom";
 import Sidebar from "../Sidebar/Sidebar";
 import Konva from "../Konva/Konva";
 import { useParams } from "react-router-dom";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   // FIX 1: Start with an empty string so the placeholder can show up on new boards
-  const [title, setTitle] = useState(""); 
+  const [title, setTitle] = useState("");
   const [tool, setTool] = useState("pen");
 
   // States for Shapes and Table selection
@@ -62,7 +62,7 @@ const Home = () => {
 
   // Sending data to backend using api
   const [boardId, setBoardId] = useState(id || null);
-  
+
   const saveBoard = async () => {
     try {
       const boardData = {
@@ -102,7 +102,7 @@ const Home = () => {
       console.log(result)
       if (!boardId && result) {
         setBoardId(result._id);
-        navigate(`/board/${result._id}`,{replace:true});
+        navigate(`/board/${result._id}`, { replace: true });
       }
     } catch (err) {
       console.log(err);
@@ -121,8 +121,8 @@ const Home = () => {
       const data = await response.json();
       console.log(data);
       // FIX 2: Set the actual loaded board title into state here!
-      setTitle(data.title || ""); 
-      
+      setTitle(data.title || "");
+
       setLines(data.elements.lines || []);
       setShapes(data.elements.shapes || []);
       setTexts(data.elements.texts || []);
@@ -147,7 +147,7 @@ const Home = () => {
     if (id) {
       getBoard(id);
     } else {
-      setTitle(""); 
+      setTitle("");
       setBoardId(null);
       setLines([]);
       setShapes([]);
@@ -156,9 +156,41 @@ const Home = () => {
     }
   }, [id]);
 
+  // share functionality
+  const shareboard = async (id) => {
+  try {
+    console.log('Share clicked');
+
+    const response = await fetch('http://localhost:5000/user/share', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: 'friend@gmail.com',
+      }),
+    });
+
+    console.log('Status:', response.status);
+
+    const data = await response.json();
+    console.log('Data:', data);
+
+    if (data.success) {
+      alert('Mail sent!');
+    } else {
+      alert(data.message);
+    }
+
+  } catch (err) {
+    console.error('FULL ERROR:', err);
+    alert('Something went wrong');
+  }
+};
+
   return (
     <>
-      <Navbar onSave={saveBoard} title={title} setTitle={setTitle} />
+      <Navbar onSave={saveBoard} title={title} setTitle={setTitle} Share={shareboard}/>
       <Sidebar />
 
       <Bottom
@@ -183,7 +215,7 @@ const Home = () => {
         shapeType={shapeType}
         tableConfig={tableConfig}
         saveHistory={saveHistory}
-        onSave = {saveBoard}
+        onSave={saveBoard}
       />
     </>
   );

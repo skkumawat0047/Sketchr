@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
 
-const Navbar = ({ onSave, title, setTitle }) => {
+const Navbar = ({ onSave, title, setTitle, Share}) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
 
@@ -80,7 +80,7 @@ const Navbar = ({ onSave, title, setTitle }) => {
           <button className="nav-action-btn">Clear</button>
           <button className="nav-action-btn" onClick={()=>navigate('/board/new')}>New Board</button>
           <button className="nav-action-btn-primary" title="Save" onClick={onSave}>Save 💾</button>
-          <button className="nav-action-btn">Share</button>
+          <button className="nav-action-btn" onClick={Share}>Share</button>
 
           {/* USER PROFILE WRAPPER */}
           <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
