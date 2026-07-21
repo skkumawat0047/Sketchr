@@ -52,7 +52,6 @@ const Home = () => {
       setTables(history[newStep].tables);
     }
   };
-
   const saveHistory = (currentLines, currentShapes, currentTexts, currentTables) => {
     const newState = { lines: currentLines, shapes: currentShapes, texts: currentTexts, tables: currentTables };
     const newHistory = history.slice(0, historyStep + 1);
