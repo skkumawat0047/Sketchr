@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Plus, LayoutTemplate, Upload, DoorOpen, MoreHorizontal, Star, Trash2, Edit3, ArrowLeftRight, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SketchrLogo from "./Login/SketchrLogo";
@@ -37,7 +37,7 @@ export default function HomePage() {
     navigate("/login");
   };
 
-  const fetchBoards = async () => {
+  const fetchBoards = useCallback(async () => {
     try {
       if (!userId) return;
       const res = await fetch(`${SERVER_ORIGIN}/user/allboard/${userId}`);
@@ -64,11 +64,11 @@ export default function HomePage() {
     } catch (err) { 
       console.error("Fetch Error:", err); 
     }
-  };
+  }, [userId, activeTab]);
 
   useEffect(() => { 
     fetchBoards(); 
-  }, [activeTab]);
+  }, [fetchBoards]);
 
   const handleAction = async (id, action) => {
     setActiveMenuId(null);
@@ -140,6 +140,38 @@ export default function HomePage() {
         .custom-scroll::-webkit-scrollbar-track { background: transparent !important; }
         .custom-scroll::-webkit-scrollbar-thumb { background-color: rgba(34, 32, 27, 0.25) !important; border-radius: 99px !important; }
         
+        .pill-btn {
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .pill-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 3px 3px 0px #22201B;
+        }
+        .pill-btn:active {
+          transform: translateY(0);
+          box-shadow: 1px 1px 0px #22201B;
+        }
+
+        .board-row-item {
+          transition: background-color 0.15s ease, transform 0.15s ease;
+          border-radius: 8px;
+          padding-left: 8px !important;
+          padding-right: 8px !important;
+        }
+        .board-row-item:hover {
+          background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .menu-option-btn {
+          padding: 8px 12px; background: none; border: none; cursor: pointer;
+          text-align: left; display: flex; align-items: center; gap: 8px;
+          font-size: 13px; font-family: 'Manrope', sans-serif; border-radius: 4px;
+          transition: background 0.15s; width: 100%; color: #22201B;
+        }
+        .menu-option-btn:hover { background: #F7F2E9; }
+        .menu-option-danger { color: #dc2626; }
+        .menu-option-danger:hover { background: #fff5f5; }
+        
         .profile-dropdown {
           position: absolute; right: 0; top: 48px; background: white;
           border: 1.5px solid #22201B; border-radius: 8px; box-shadow: 4px 4px 0px #22201B;
@@ -200,12 +232,12 @@ export default function HomePage() {
         {/* QUICK ACTIONS */}
         <div style={styles.pillRow}>
           {QUICK_ACTIONS.map(e => (
-            <button key={e.label} style={{ ...styles.pill, cursor: "pointer" }} onClick={() => navigate(e.go)}>
+            <button key={e.label} className="pill-btn" style={{ ...styles.pill, cursor: "pointer" }} onClick={() => navigate(e.go)}>
               <e.icon size={16} /> {e.label}
             </button>
           ))}
-            <input id="file" type="file" accept=".pdf/.png" hidden />
-            <label htmlFor="file" style={{ ...styles.pill, cursor: 'pointer' }}>
+            <input id="file" type="file" accept=".pdf,.png" hidden />
+            <label htmlFor="file" className="pill-btn" style={{ ...styles.pill, cursor: 'pointer' }}>
               <Upload size={16} />
               Import a file
             </label>
@@ -223,21 +255,21 @@ export default function HomePage() {
           {boards
             .filter(b => b.title.toLowerCase().includes(search.toLowerCase()))
             .map(b => (
-              <div key={b.id} style={{ ...styles.boardRow, cursor: "pointer", position: "relative" }} onClick={() => editingId !== b.id && navigate(`/board/${b.id}`)}>
+              <div key={b.id} className="board-row-item" style={{ ...styles.boardRow, cursor: "pointer", position: "relative" }} onClick={() => editingId !== b.id && navigate(`/board/${b.id}`)}>
                 <div style={{ ...styles.boardSwatch, background: b.accent }} />
                 
                 <div style={{ ...styles.boardInfo, flex: 1 }}>
                   {editingId === b.id ? (
                     <div style={{ display: "flex", gap: "6px" }} onClick={e => e.stopPropagation()}>
-                      <input value={renameText} onChange={e => setRenameText(e.target.value)} autoFocus style={{ border: "1px solid #ccc", padding: "2px 6px", borderRadius: "4px" }} />
-                      <button onClick={() => handleAction(b.id, "RENAME")} style={{ background: COLORS.primary, color: "white", border: "none", padding: "2px 8px", borderRadius: "4px", cursor: "pointer" }}>Save</button>
+                      <input value={renameText} onChange={e => setRenameText(e.target.value)} autoFocus style={{ border: "1.5px solid #22201B", padding: "4px 8px", borderRadius: "4px", outline: "none", fontSize: "14px" }} />
+                      <button onClick={() => handleAction(b.id, "RENAME")} style={{ background: COLORS.primary, color: COLORS.ink, border: "1.5px solid #22201B", padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontWeight: "600" }}>Save</button>
                     </div>
                   ) : (
                     <>
                       <div style={{ ...styles.boardTitle, display: "flex", alignItems: "center", gap: "6px" }}>
                         {b.title} {b.isStarred && <Star size={14} style={{ fill: "#fbbf24", color: "#fbbf24" }} />}
                       </div>
-                      <div style={styles.boardMeta}>Edited {b.edited} · {b.people} people</div>
+                      <div style={styles.boardMeta}>Edited {b.edited} · {b.people} {b.people === 1 ? "person" : "people"}</div>
                     </>
                   )}
                 </div>
@@ -249,18 +281,18 @@ export default function HomePage() {
                   </button>
                   
                   {activeMenuId === b.id && (
-                    <div style={{ position: "absolute", right: 0, top: 25, background: "white", border: "1px solid #ddd", borderRadius: "6px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", zIndex: 10, width: "130px", display: "flex", flexDirection: "column", padding: "4px" }}>
+                    <div style={{ position: "absolute", right: 0, top: 30, background: "white", border: "1.5px solid #22201B", borderRadius: "8px", boxShadow: "4px 4px 0px #22201B", zIndex: 10, width: "150px", display: "flex", flexDirection: "column", padding: "6px", gap: "2px" }}>
                       {activeTab !== "Trash" && (
                         <>
-                          <button style={{ padding: "6px 10px", background: "none", border: "none", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }} onClick={() => { setEditingId(b.id); setRenameText(b.title); setActiveMenuId(null); }}><Edit3 size={13} /> Rename</button>
-                          <button style={{ padding: "6px 10px", background: "none", border: "none", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }} onClick={() => handleAction(b.id, "STAR")}><Star size={13} /> {b.isStarred ? "Unstar" : "Star"}</button>
+                          <button className="menu-option-btn" onClick={() => { setEditingId(b.id); setRenameText(b.title); setActiveMenuId(null); }}><Edit3 size={14} /> Rename</button>
+                          <button className="menu-option-btn" onClick={() => handleAction(b.id, "STAR")}><Star size={14} /> {b.isStarred ? "Unstar" : "Star"}</button>
                         </>
                       )}
                       {activeTab === "Trash" && (
-                        <button style={{ padding: "6px 10px", background: "none", border: "none", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }} onClick={() => handleAction(b.id, "RESTORE")}><ArrowLeftRight size={13} /> Restore</button>
+                        <button className="menu-option-btn" onClick={() => handleAction(b.id, "RESTORE")}><ArrowLeftRight size={14} /> Restore</button>
                       )}
-                      <button style={{ padding: "6px 10px", background: "none", border: "none", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "red" }} onClick={() => handleAction(b.id, "DELETE")}>
-                        <Trash2 size={13} /> {activeTab === "Trash" ? "Delete Forever" : "Move to Trash"}
+                      <button className="menu-option-btn menu-option-danger" onClick={() => handleAction(b.id, "DELETE")}>
+                        <Trash2 size={14} /> {activeTab === "Trash" ? "Delete Forever" : "Move to Trash"}
                       </button>
                     </div>
                   )}

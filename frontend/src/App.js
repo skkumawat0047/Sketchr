@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Routes, Route } from 'react-router';
 import './App.css';
 import Login from './page/Login/Login';
@@ -8,22 +7,16 @@ import RegisterPage from './page/Login/Registerpage';
 import Dashboard from './page/Dashboard'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  if(isLoggedIn){
-    console.log("I am login")
-  }
   return (
     <div className="App">
-      <header className="App-header">
-        <Routes>
-          <Route path='/' element={<Root />} />
-            <Route path="/login" element={<Login onLoginSuccess={()=>setIsLoggedIn(true)}/>} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/Dashboard" element={<Dashboard />} />
-            <Route path="/board/new" element={<Home />} />
-            <Route path="/board/:id" element={<Home />} />
-          </Routes>
-      </header>
+      <Routes>
+        <Route path='/' element={<Root />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/board/new" element={<Home />} />
+        <Route path="/board/:id" element={<Home />} />
+      </Routes>
     </div>
   );
 }

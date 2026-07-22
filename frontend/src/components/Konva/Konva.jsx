@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Layer, Stage, Text, Line, Rect, Circle, Ellipse, RegularPolygon, Arrow, Group } from "react-konva";
 
-const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig, saveHistory,onSave}) => {
+const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tables, setTables, color, strokeWidth, shapeType, tableConfig, saveHistory, onSave }) => {
   const [zoom, setZoom] = useState(1);
   const [editingText, setEditingText] = useState(null);
   const [inputValue, setInputValue] = useState("");
@@ -38,12 +38,12 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
 
     if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
       setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color, strokeWidth, zIndex: currentZIndex }]);
-    } 
+    }
     else if (tool === 'shape') {
       setShapes([...shapes, { type: shapeType, x: pos.x, y: pos.y, width: 0, height: 0, color, strokeWidth, zIndex: currentZIndex }]);
     }
     else if (tool === 'table') {
-      if(tableConfig) {
+      if (tableConfig) {
         setTables([...tables, { x: pos.x, y: pos.y, width: 0, height: 0, rows: tableConfig.rows, cols: tableConfig.cols, color, strokeWidth, zIndex: currentZIndex }]);
       }
     }
@@ -58,7 +58,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
       let lastLine = { ...lines[lines.length - 1] };
       lastLine.points = lastLine.points.concat([point.x, point.y]);
       setLines([...lines.slice(0, lines.length - 1), lastLine]);
-    } 
+    }
     else if (tool === 'shape') {
       let lastShape = { ...shapes[shapes.length - 1] };
       lastShape.width = point.x - lastShape.x;
@@ -77,14 +77,14 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
     if (isDrawing.current && tool !== 'mover') {
       saveHistory(lines, shapes, texts, tables);
       if (onSave && typeof onSave === "function") {
-          onSave();
-        }
+        onSave();
+      }
     }
     isDrawing.current = false;
   };
 
   const renderTable = (tbl, i) => {
-    if(!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
+    if (!tbl.rows || !tbl.cols || Math.abs(tbl.width) < 1 || Math.abs(tbl.height) < 1) return null;
     const rowHeight = tbl.height / tbl.rows;
     const colWidth = tbl.width / tbl.cols;
     const gridLines = [];
@@ -129,17 +129,17 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
 
       <div className="bg-gray-300 overflow-hidden">
         <Stage
-          ref={stageRef} 
-          width={window.innerWidth} 
-          height={window.innerHeight} 
-          scaleX={zoom} 
-          scaleY={zoom} 
+          ref={stageRef}
+          width={window.innerWidth}
+          height={window.innerHeight}
+          scaleX={zoom}
+          scaleY={zoom}
           className="bg-white"
-          
+
           // YAHAN CHANGE KIYA HAI:
           // Agar tool mover hai to canvas ko drag karne dega, warna drawing karne dega.
           draggable={tool === "mover"}
-          
+
           // Cursor badalne ke liye style add kiya hai:
           // Mover select karne par cursor haath (grab) ban jayega, aur baaki tools ke liye crosshair (plus sign) jisse target karna aasan ho.
           style={{ cursor: tool === 'mover' ? 'grab' : 'crosshair' }}
@@ -151,18 +151,18 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
             {allElements.map((el, i) => {
               if (el.itemType === 'line') {
                 return (
-                  <Line 
-                    key={`line-${i}`} points={el.points} stroke={el.color} 
-                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth} 
-                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round" 
-                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'} 
+                  <Line
+                    key={`line-${i}`} points={el.points} stroke={el.color}
+                    strokeWidth={el.tool === 'brush' ? el.strokeWidth * 3 : el.strokeWidth}
+                    opacity={el.tool === 'brush' ? 0.3 : 1} tension={0.5} lineCap="round" lineJoin="round"
+                    globalCompositeOperation={el.tool === 'eraser' ? 'destination-out' : 'source-over'}
                   />
                 );
               }
               if (el.itemType === 'shape') {
                 if (Math.abs(el.width) < 1 && Math.abs(el.height) < 1) return null;
                 const radius = Math.sqrt(el.width * el.width + el.height * el.height);
-                
+
                 if (el.type === 'Rect') return <Rect key={`shape-${i}`} x={el.x} y={el.y} width={el.width} height={el.height} stroke={el.color} strokeWidth={el.strokeWidth} />;
                 if (el.type === 'Circle') return <Circle key={`shape-${i}`} x={el.x} y={el.y} radius={radius} stroke={el.color} strokeWidth={el.strokeWidth} />;
                 if (el.type === 'Ellipse') return <Ellipse key={`shape-${i}`} x={el.x} y={el.y} radiusX={Math.abs(el.width)} radiusY={Math.abs(el.height)} stroke={el.color} strokeWidth={el.strokeWidth} />;
