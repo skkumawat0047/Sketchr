@@ -4,7 +4,7 @@ import { LogOut, Send } from "lucide-react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
 
-const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSubmit }) => {
+const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSubmit,clear}) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [showShareInput, setShowShareInput] = useState(false);
@@ -118,7 +118,7 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
         </div>
 
         <div className="nav-btn-group" style={{ position: "relative" }}>
-          <button className="nav-action-btn">Clear</button>
+          <button className="nav-action-btn" onClick={clear}>Clear</button>
           <button className="nav-action-btn" onClick={() => navigate('/board/new')}>New Board</button>
           <button className="nav-action-btn-primary" title="Save" onClick={onSave}>Save 💾</button>
           

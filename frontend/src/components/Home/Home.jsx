@@ -52,7 +52,12 @@ const Home = () => {
       setTables(history[newStep].tables);
     }
   };
-
+  const Clear = () =>{
+    setLines([]);
+    setShapes([]);
+    setTexts([]);
+    setTables([]);
+  }
   const saveHistory = (currentLines, currentShapes, currentTexts, currentTables) => {
     const newState = { lines: currentLines, shapes: currentShapes, texts: currentTexts, tables: currentTables };
     const newHistory = history.slice(0, historyStep + 1);
@@ -187,6 +192,7 @@ const Home = () => {
         onSave={saveBoard} 
         title={title} 
         setTitle={setTitle} 
+        clear = {Clear}
         ShareEmail={ShareEmail} 
         setShareEmail={setShareEmail} 
         onShareSubmit={shareboard} // Navbar ko function pass kar diya hai
