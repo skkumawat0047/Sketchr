@@ -39,7 +39,6 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
   const userLogin = async () => {
     try {
       const res = await fetch("https://sketchr.onrender.com/user/login", {
-      // const res = await fetch("https://sketchr.onrender.com/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,13 +51,18 @@ export default function LoginPage({ onLoginSuccess, onGoToRegister }) {
 
 
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.message);
+
+      // Login fail
+      if (!res.ok || !data.userId) {
+        setError(data.message || "Invalid email or password");
         return;
       }
-      localStorage.setItem("userId",data.userId);
-      localStorage.setItem("sketchr_user_name",data.userName);
-      localStorage.setItem("sketchr_email_id",email);
+
+      // Login success
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("sketchr_user_name", data.userName);
+      localStorage.setItem("sketchr_email_id", email);
+
       navigate("/Dashboard");
 
     } catch (error) {
