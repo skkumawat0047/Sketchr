@@ -41,7 +41,7 @@ exports.updateBoard = async (req, res) => {
         const board = await Canvas.findByIdAndUpdate(
             req.params.id,
             req.body,
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!board) {
@@ -58,7 +58,6 @@ exports.updateBoard = async (req, res) => {
 };
 
 // MOVE TO TRASH
-// MOVE TO TRASH
 exports.moveToTrash = async (req, res) => {
     try {
         const userId = req.body.userId;
@@ -68,7 +67,7 @@ exports.moveToTrash = async (req, res) => {
             {
                 $addToSet: { deletedBy: userId }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!board) {
@@ -95,7 +94,7 @@ exports.restoreBoard = async (req, res) => {
             {
                 $pull: { deletedBy: userId }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!board) {
@@ -119,7 +118,7 @@ exports.starBoard = async (req, res) => {
         const board = await Canvas.findByIdAndUpdate(
             req.params.id,
             { $addToSet: { starredBy: userId } },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!board) {
             return res.status(404).json({ message: 'Board not found' });
@@ -137,7 +136,7 @@ exports.unstarBoard = async (req, res) => {
         const board = await Canvas.findByIdAndUpdate(
             req.params.id,
             { $pull: { starredBy: userId } },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!board) {
             return res.status(404).json({ message: 'Board not found' });

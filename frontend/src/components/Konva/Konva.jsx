@@ -126,7 +126,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
       window.removeEventListener('mousemove', handleGlobalMouseMove);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [tool, lines, shapes, texts, tables, onSave, saveHistory]);
+  }, [tool, lines, shapes, texts, tables, onSave, saveHistory, setLines, setShapes, setTables]);
 
   const handleMouseMove = (e) => {
     if (!isDrawing.current || tool === 'mover') return;

@@ -68,7 +68,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchBoards();
-  }, [activeTab]);
+  }, [fetchBoards]);
 
   const handleAction = async (id, action) => {
     setActiveMenuId(null);
