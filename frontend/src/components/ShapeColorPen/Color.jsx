@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 
-const Color = ({ color, setColor }) => {
+const Color = ({ color, setColor, tool, setTool, prevToolRef }) => {
   // 1. Component load hote waqt hum check karenge ki kya LocalStorage me purane colors hain?
   const [colorStore, setColorStore] = useState(() => {
     const savedColors = localStorage.getItem("sketchr_colors");
@@ -33,6 +33,14 @@ const Color = ({ color, setColor }) => {
     }
   };
 
+  const handleColorChange = (newColor) => {
+    setColor(newColor);
+    // Agar current tool 'color' tha, to wapas active drawing tool (pen/shape) par switch kar do
+    if (tool === 'color') {
+      setTool(prevToolRef.current || 'pen');
+    }
+  };
+
   return (
     <div className="border-2 border-black w-[370px] bg-sky-200 rounded-lg p-3">
       <div className="w-full">
@@ -42,7 +50,7 @@ const Color = ({ color, setColor }) => {
           <div className="flex flex-col w-[200px]">
             <HexColorPicker
               color={color}
-              onChange={setColor}
+              onChange={handleColorChange}
               style={{ width: "100%", height: "150px" }}
             />
 
@@ -70,7 +78,7 @@ const Color = ({ color, setColor }) => {
                 key={clr.id}
                 className="w-8 h-8 rounded-md m-1 cursor-pointer border border-gray-400 hover:scale-110 transition-transform shrink-0"
                 style={{ backgroundColor: clr.hexValue }}
-                onClick={() => setColor(clr.hexValue)}
+                onClick={() => handleColorChange(clr.hexValue)}
                 title={clr.hexValue}
               ></span>
             ))}

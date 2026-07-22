@@ -30,29 +30,34 @@ const Bottom = ({ tool, setTool, texts, setTexts, color, setColor, strokeWidth, 
         };
     }, [tool]);
 
+    const prevToolRef = React.useRef('pen');
+
     // Jab bhi kisi tool icon (niche wale button) par click ho, to popup ko wapas dikha do
     const handleToolClick = (newTool) => {
+        if (tool !== 'color') {
+          prevToolRef.current = tool;
+        }
         setTool(newTool);
         setIsMenuVisible(true);
     };
 
     return (
         <div>
-            <footer className='fixed w-full bottom-2 flex flex-col items-center gap-1 z-10'>
-
+            <footer className='fixed w-full bottom-3 flex flex-col items-center gap-2 z-20 pointer-events-none'>
+                
                 {/* Popups tabhi dikhenge jab isMenuVisible true hoga */}
                 {isMenuVisible && (
-                    <>
-                        {(tool === "pen" || tool === "brush" || tool === "eraser") && (
-                            <Pen tool={tool} setTool={setTool} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth} />
-                        )}
-                        {tool === "shape" ? (<Shape shapeType={shapeType} setShapeType={setShapeType} />) : ""}
-                        {tool === "color" ? (<Color color={color} setColor={setColor} />) : ""}
-                        {tool === "table" ? (<Table tableConfig={tableConfig} setTableConfig={setTableConfig} />) : ""}
-                    </>
+                  <div className="pointer-events-auto">
+                    {(tool === "pen" || tool === "brush" || tool === "eraser") && (
+                        <Pen tool={tool} setTool={setTool} strokeWidth={strokeWidth} setStrokeWidth={setStrokeWidth} />
+                    )}
+                    {tool === "shape" ? (<Shape shapeType={shapeType} setShapeType={setShapeType} />) : ""}
+                    {tool === "color" ? (<Color color={color} setColor={setColor} tool={tool} setTool={setTool} prevToolRef={prevToolRef} />) : ""}
+                    {tool === "table" ? (<Table tableConfig={tableConfig} setTableConfig={setTableConfig} />) : ""}
+                  </div>
                 )}
 
-                <ul className='w-fit px-5 rounded-full bg-gray-300 py-1 flex justify-center gap-3 text-2xl hover:[&>*]:cursor-pointer active:[&>li]:bg-blue-600 [&>*]:rounded-md'>
+                <ul className='w-fit px-5 rounded-full bg-white/90 backdrop-blur-md border border-gray-300 py-1.5 flex justify-center gap-3 text-xl shadow-lg pointer-events-auto hover:[&>*]:cursor-pointer active:[&>li]:bg-blue-600 [&>*]:rounded-md'>
                     <li style={{ background: tool === "mover" ? "blue" : "", cursor: "pointer" }}><i className="fa-regular fa-hand-pointer" onClick={() => { tool === 'mover' ? handleToolClick('pen') : handleToolClick('mover') }} ></i></li>
                     <li><i className="fa-solid fa-rotate-left" onClick={handleUndo}></i></li>
                     <li><i className="fa-solid fa-rotate-right" onClick={handleRedo}></i></li>

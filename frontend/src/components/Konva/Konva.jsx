@@ -6,9 +6,24 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
   const [editingText, setEditingText] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const isDrawing = useRef(false);
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   const stageRef = useRef(null);
   const textareaRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (editingText) {
@@ -33,21 +48,85 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
     }
 
     isDrawing.current = true;
-    const stage = e.target.getStage();
+    document.body.style.cursor = tool === 'eraser' ? 'cell' : 'crosshair';
+    document.body.style.userSelect = 'none';
+
+    const stage = stageRef.current || e.target.getStage();
     const pos = stage.getAbsoluteTransform().copy().invert().point(stage.getPointerPosition());
 
     if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
-      setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color, strokeWidth, zIndex: currentZIndex }]);
+      setLines(prev => [...prev, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color, strokeWidth, zIndex: currentZIndex }]);
     }
     else if (tool === 'shape') {
-      setShapes([...shapes, { type: shapeType, x: pos.x, y: pos.y, width: 0, height: 0, color, strokeWidth, zIndex: currentZIndex }]);
+      setShapes(prev => [...prev, { type: shapeType, x: pos.x, y: pos.y, width: 0, height: 0, color, strokeWidth, zIndex: currentZIndex }]);
     }
     else if (tool === 'table') {
       if (tableConfig) {
-        setTables([...tables, { x: pos.x, y: pos.y, width: 0, height: 0, rows: tableConfig.rows, cols: tableConfig.cols, color, strokeWidth, zIndex: currentZIndex }]);
+        setTables(prev => [...prev, { x: pos.x, y: pos.y, width: 0, height: 0, rows: tableConfig.rows, cols: tableConfig.cols, color, strokeWidth, zIndex: currentZIndex }]);
       }
     }
   };
+
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      if (!isDrawing.current || tool === 'mover' || !stageRef.current) return;
+      const stage = stageRef.current;
+      const stageTransform = stage.getAbsoluteTransform().copy().invert();
+      const point = stageTransform.point({ x: e.clientX, y: e.clientY });
+
+      if (tool === 'pen' || tool === 'brush' || tool === 'eraser') {
+        setLines(prevLines => {
+          if (prevLines.length === 0) return prevLines;
+          const lastLine = prevLines[prevLines.length - 1];
+          return [...prevLines.slice(0, -1), {
+            ...lastLine,
+            points: [...lastLine.points, point.x, point.y]
+          }];
+        });
+      }
+      else if (tool === 'shape') {
+        setShapes(prevShapes => {
+          if (prevShapes.length === 0) return prevShapes;
+          const lastShape = prevShapes[prevShapes.length - 1];
+          return [...prevShapes.slice(0, -1), {
+            ...lastShape,
+            width: point.x - lastShape.x,
+            height: point.y - lastShape.y
+          }];
+        });
+      }
+      else if (tool === 'table') {
+        setTables(prevTables => {
+          if (prevTables.length === 0) return prevTables;
+          const lastTable = prevTables[prevTables.length - 1];
+          return [...prevTables.slice(0, -1), {
+            ...lastTable,
+            width: point.x - lastTable.x,
+            height: point.y - lastTable.y
+          }];
+        });
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      if (isDrawing.current) {
+        isDrawing.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        saveHistory(lines, shapes, texts, tables);
+        if (onSave && typeof onSave === "function") {
+          onSave();
+        }
+      }
+    };
+
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [tool, lines, shapes, texts, tables, onSave, saveHistory]);
 
   const handleMouseMove = (e) => {
     if (!isDrawing.current || tool === 'mover') return;
@@ -104,6 +183,14 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
     ...texts.map(t => ({ ...t, itemType: 'text' }))
   ].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
 
+  const getCursorStyle = () => {
+    if (tool === 'mover') return 'grab';
+    if (tool === 'eraser') return 'cell';
+    if (tool === 'pen' || tool === 'brush') return 'crosshair';
+    if (tool === 'text') return 'text';
+    return 'crosshair';
+  };
+
   return (
     <>
       {editingText && (
@@ -127,22 +214,16 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
         />
       )}
 
-      <div className="bg-gray-300 overflow-hidden">
+      <div className="bg-gray-300 overflow-hidden fixed inset-0">
         <Stage
           ref={stageRef}
-          width={window.innerWidth}
-          height={window.innerHeight}
+          width={dimensions.width}
+          height={dimensions.height}
           scaleX={zoom}
           scaleY={zoom}
           className="bg-white"
-
-          // YAHAN CHANGE KIYA HAI:
-          // Agar tool mover hai to canvas ko drag karne dega, warna drawing karne dega.
           draggable={tool === "mover"}
-
-          // Cursor badalne ke liye style add kiya hai:
-          // Mover select karne par cursor haath (grab) ban jayega, aur baaki tools ke liye crosshair (plus sign) jisse target karna aasan ho.
-          style={{ cursor: tool === 'mover' ? 'grab' : 'crosshair' }}
+          style={{ cursor: getCursorStyle() }}
 
           onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown} onTouchMove={handleMouseMove} onTouchEnd={handleMouseUp}
@@ -186,15 +267,23 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
       </div>
 
       {/* Zoom controls */}
-      <ul className="fixed right-5 bottom-5 z-50 px-5 py-2 rounded-full bg-gray-200 flex items-center gap-3 shadow-lg">
-        <li className="bg-white rounded-md px-1 cursor-pointer" onClick={() => setZoom((prev) => Math.max(0.5, prev - 0.1))}>
-          <i className="fa-solid fa-minus"></i>
-        </li>
-        <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-        <li className="bg-white rounded-md px-1 cursor-pointer" onClick={() => setZoom((prev) => Math.min(3, prev + 0.1))}>
-          <i className="fa-solid fa-plus"></i>
-        </li>
-      </ul>
+      <div className="fixed right-5 bottom-5 z-50 px-3 py-2 rounded-xl bg-gray-200 flex items-center gap-2 shadow-lg select-none">
+        <span className="text-gray-600 font-medium text-xs">Zoom</span>
+
+        <input
+          type="range"
+          min="0.5"
+          max="3"
+          step="0.1"
+          value={zoom}
+          onChange={(e) => setZoom(Number(e.target.value))}
+          className="w-24 h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        />
+
+        <span className="w-10 text-center font-bold text-gray-800 text-xs">
+          {Math.round(zoom * 50)}%
+        </span>
+      </div>
     </>
   );
 };

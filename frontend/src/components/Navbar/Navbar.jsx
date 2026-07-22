@@ -106,8 +106,8 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
         .board-logout-btn:hover { background: #fff5f5; }
       `}</style>
       
-      <nav style={{ ...styles.nav, position: "fixed", top: 0, width: "100%", zIndex: 1000 }}>
-        <div style={styles.brand}>
+      <nav style={{ ...styles.nav, position: "fixed", top: 0, width: "100%", zIndex: 1000, pointerEvents: "none" }}>
+        <div style={{ ...styles.brand, pointerEvents: "auto" }}>
           <SketchrLogo size={35} />
           Sketchr
           <input 
@@ -119,7 +119,7 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
           />
         </div>
 
-        <div className="nav-btn-group" style={{ position: "relative" }}>
+        <div className="nav-btn-group" style={{ position: "relative", pointerEvents: "auto" }}>
           <button className="nav-action-btn" onClick={clear}>Clear</button>
           <button className="nav-action-btn" onClick={() => navigate('/board/new')}>New Board</button>
           <button className="nav-action-btn-primary" title="Save" onClick={onSave}>Save 💾</button>
