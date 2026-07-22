@@ -4,13 +4,13 @@ import Bottom from "../Bottombar/Bottom";
 import Sidebar from "../Sidebar/Sidebar";
 import Konva from "../Konva/Konva";
 import { useParams } from "react-router-dom";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import emailjs from "@emailjs/browser";
 
 const Home = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  // FIX 1: Start with an empty string so the placeholder can show up on new boards
-  const [title, setTitle] = useState(""); 
+  const [title, setTitle] = useState("");
   const [tool, setTool] = useState("pen");
 
   // States for Shapes and Table selection
@@ -52,6 +52,12 @@ const Home = () => {
       setTables(history[newStep].tables);
     }
   };
+  const Clear = () =>{
+    setLines([]);
+    setShapes([]);
+    setTexts([]);
+    setTables([]);
+  }
   const saveHistory = (currentLines, currentShapes, currentTexts, currentTables) => {
     const newState = { lines: currentLines, shapes: currentShapes, texts: currentTexts, tables: currentTables };
     const newHistory = history.slice(0, historyStep + 1);
@@ -62,11 +68,10 @@ const Home = () => {
 
   // Sending data to backend using api
   const [boardId, setBoardId] = useState(id || null);
-  
+
   const saveBoard = async () => {
     try {
       const boardData = {
-        // Fallback to "Untitled Board" in DB if user leaves it completely blank
         title: title.trim() === "" ? "Untitled Board" : title,
         owner: localStorage.getItem("userId"),
         elements: {
@@ -79,7 +84,6 @@ const Home = () => {
 
       let response;
       if (boardId) {
-        // Update Existing Board
         response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
           method: "PUT",
           headers: {
@@ -88,7 +92,6 @@ const Home = () => {
           body: JSON.stringify(boardData)
         });
       } else {
-        // Create New Board
         response = await fetch("http://localhost:5000/api/boards/createboard", {
           method: "POST",
           headers: {
@@ -99,10 +102,10 @@ const Home = () => {
       }
 
       const result = await response.json();
-      console.log(result)
+      console.log(result);
       if (!boardId && result) {
         setBoardId(result._id);
-        navigate(`/board/${result._id}`,{replace:true});
+        navigate(`/board/${result._id}`, { replace: true });
       }
     } catch (err) {
       console.log(err);
@@ -119,10 +122,8 @@ const Home = () => {
       }
 
       const data = await response.json();
-      console.log(data);
-      // FIX 2: Set the actual loaded board title into state here!
-      setTitle(data.title || ""); 
-      
+      setTitle(data.title || "");
+
       setLines(data.elements.lines || []);
       setShapes(data.elements.shapes || []);
       setTexts(data.elements.texts || []);
@@ -142,12 +143,11 @@ const Home = () => {
     }
   };
 
-  // Trigger loading when ID exists, or wipe states clean when route changes back to a new board
   useEffect(() => {
     if (id) {
       getBoard(id);
     } else {
-      setTitle(""); 
+      setTitle("");
       setBoardId(null);
       setLines([]);
       setShapes([]);
@@ -156,9 +156,47 @@ const Home = () => {
     }
   }, [id]);
 
+  const [ShareEmail, setShareEmail] = useState("");
+
+  // Share board using EmailJS (Updated to use the dynamic ShareEmail state)
+  const shareboard = async () => {
+    if (!ShareEmail) return;
+
+    // Pehle board save kar lete hain taaki current link/data updated rahe
+    await saveBoard();
+
+    try {
+      const templateParams = {
+        email: ShareEmail, // Yahan hardcoded email ki jagah user ka entered email pass hoga
+        board_name: title || "Untitled Board",
+        board_link: window.location.href // Current URL pass karega
+      };
+
+      await emailjs.send(
+        "service_rl2n529",
+        "template_9e47a96",
+        templateParams,
+        "FN4XnoiwNOEW0HjhN"
+      );
+      alert(`Board successfully shared with ${ShareEmail}!`);
+      setShareEmail("");
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      alert("Error in sending email");
+    }
+  };
+
   return (
     <>
-      <Navbar onSave={saveBoard} title={title} setTitle={setTitle} />
+      <Navbar 
+        onSave={saveBoard} 
+        title={title} 
+        setTitle={setTitle} 
+        clear = {Clear}
+        ShareEmail={ShareEmail} 
+        setShareEmail={setShareEmail} 
+        onShareSubmit={shareboard} // Navbar ko function pass kar diya hai
+      />
       <Sidebar />
 
       <Bottom
@@ -183,7 +221,7 @@ const Home = () => {
         shapeType={shapeType}
         tableConfig={tableConfig}
         saveHistory={saveHistory}
-        onSave = {saveBoard}
+        onSave={saveBoard}
       />
     </>
   );

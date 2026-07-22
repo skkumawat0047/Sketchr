@@ -7,7 +7,6 @@ import { styles, COLORS } from "./Login/styles";
 const QUICK_ACTIONS = [
   { icon: Plus, label: "Blank board", go: "/board/new" },
   { icon: LayoutTemplate, label: "From a template", go: "/board/new" },
-  { icon: Upload, label: "Import a file", go: "/board/new" },
   { icon: DoorOpen, label: "Join a room", go: "/board/new" },
 ];
 
@@ -205,6 +204,11 @@ export default function HomePage() {
               <e.icon size={16} /> {e.label}
             </button>
           ))}
+            <input id="file" type="file" accept=".pdf/.png" hidden />
+            <label htmlFor="file" style={{ ...styles.pill, cursor: 'pointer' }}>
+              <Upload size={16} />
+              Import a file
+            </label>
         </div>
 
         {/* TABS */}

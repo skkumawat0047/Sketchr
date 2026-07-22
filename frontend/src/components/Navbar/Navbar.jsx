@@ -1,19 +1,45 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Send } from "lucide-react";
 import SketchrLogo from "../../page/Login/SketchrLogo";
 import { styles } from "../../page/Login/styles";
 
-const Navbar = ({ onSave, title, setTitle }) => {
+const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSubmit,clear}) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [showShareInput, setShowShareInput] = useState(false);
+
+  // Local state as a safe fallback agar parent se function pass na ho
+  const [localShareEmail, setLocalShareEmail] = useState("");
+
+  // Determine current email value and setter based on props availability
+  const currentEmail = ShareEmail !== undefined ? ShareEmail : localShareEmail;
+  const updateEmail = typeof setShareEmail === "function" ? setShareEmail : setLocalShareEmail;
 
   const user = localStorage.getItem("sketchr_user_name") || "Guest";
   const email = localStorage.getItem("sketchr_email_id") || "No email found";
 
   const handleLogout = () => {
-    localStorage.clear(); // Ek sath sab clear karo
+    localStorage.clear();
     navigate("/login"); 
+  };
+
+  const handleShareSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentEmail) return;
+
+    if (currentEmail.includes("@") && currentEmail.includes(".")) {
+      // Agar parent component se onShareSubmit function pass kiya gaya hai toh use call karein
+      if (typeof onShareSubmit === "function") {
+        await onShareSubmit();
+      } else {
+        alert(`Board successfully shared with ${currentEmail}!`);
+        updateEmail("");
+      }
+      setShowShareInput(false);
+    } else {
+      alert("Please enter a valid email address.");
+    }
   };
 
   return (
@@ -46,6 +72,21 @@ const Navbar = ({ onSave, title, setTitle }) => {
         }
         .nav-action-btn-primary:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #22201B; }
 
+        .nav-share-container {
+          position: absolute; right: 60px; top: 12px; background: white;
+          border: 1.5px solid #22201B; border-radius: 8px; padding: 6px;
+          box-shadow: 4px 4px 0px #22201B; display: flex; align-items: center; gap: 6px; z-index: 2000;
+        }
+        .nav-share-input {
+          border: 1.5px solid #22201B; border-radius: 4px; padding: 6px 10px;
+          font-size: 13px; outline: none; width: 200px; font-family: 'Manrope', sans-serif;
+        }
+        .nav-share-submit {
+          background: #5B5FEF; color: white; border: 1.5px solid #22201B; border-radius: 4px;
+          padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .nav-share-submit:hover { background: #4a4edf; }
+
         .board-profile-dropdown {
           position: absolute; right: 0; top: 48px; background: white;
           border: 1.5px solid #22201B; border-radius: 8px; box-shadow: 4px 4px 0px #22201B;
@@ -76,15 +117,39 @@ const Navbar = ({ onSave, title, setTitle }) => {
           />
         </div>
 
-        <div className="nav-btn-group">
-          <button className="nav-action-btn">Clear</button>
-          <button className="nav-action-btn" onClick={()=>navigate('/board/new')}>New Board</button>
+        <div className="nav-btn-group" style={{ position: "relative" }}>
+          <button className="nav-action-btn" onClick={clear}>Clear</button>
+          <button className="nav-action-btn" onClick={() => navigate('/board/new')}>New Board</button>
           <button className="nav-action-btn-primary" title="Save" onClick={onSave}>Save 💾</button>
-          <button className="nav-action-btn">Share</button>
+          
+          <button 
+            className="nav-action-btn" 
+            onClick={() => {
+              setShowShareInput(!showShareInput);
+              setShowMenu(false);
+            }}
+          >
+            Share
+          </button>
 
-          {/* USER PROFILE WRAPPER */}
+          {showShareInput && (
+            <form onSubmit={handleShareSubmit} className="nav-share-container" onClick={(e) => e.stopPropagation()}>
+              <input 
+                type="email" 
+                placeholder="Enter email..." 
+                value={currentEmail || ""}
+                onChange={(e) => updateEmail(e.target.value)}
+                className="nav-share-input"
+                autoFocus
+              />
+              <button type="submit" className="nav-share-submit" title="Send">
+                <Send size={14} />
+              </button>
+            </form>
+          )}
+
           <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ ...styles.avatar, cursor: "pointer" }} onClick={() => setShowMenu(!showMenu)}>
+            <div style={{ ...styles.avatar, cursor: "pointer" }} onClick={() => { setShowMenu(!showMenu); setShowShareInput(false); }}>
               {user.charAt(0).toUpperCase() || '0'}
             </div>
 
@@ -105,10 +170,13 @@ const Navbar = ({ onSave, title, setTitle }) => {
         </div>
       </nav>
       
-      {showMenu && (
+      {(showMenu || showShareInput) && (
         <div 
           style={{ position: "fixed", inset: 0, zIndex: 999, background: "transparent" }} 
-          onClick={() => setShowMenu(false)}
+          onClick={() => {
+            setShowMenu(false);
+            setShowShareInput(false);
+          }}
         />
       )}
     </>
