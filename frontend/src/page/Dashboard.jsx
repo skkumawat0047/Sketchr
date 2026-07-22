@@ -21,7 +21,7 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("All boards");
   const [boards, setBoards] = useState([]);
-  
+
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [renameText, setRenameText] = useState("");
@@ -43,14 +43,14 @@ export default function HomePage() {
       const res = await fetch(`${SERVER_ORIGIN}/user/allboard/${userId}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      
-      const tabKeyMap = { 
-        "All boards": "ownedBoards", 
-        "Shared with me": "sharedBoards", 
-        "Starred": "starredBoards", 
-        "Trash": "trashBoards" 
+
+      const tabKeyMap = {
+        "All boards": "ownedBoards",
+        "Shared with me": "sharedBoards",
+        "Starred": "starredBoards",
+        "Trash": "trashBoards"
       };
-      
+
       const selectedBoards = data[tabKeyMap[activeTab]] || [];
 
       setBoards(selectedBoards.map((b, i) => ({
@@ -61,73 +61,110 @@ export default function HomePage() {
         accent: ACCENT_COLORS[i % 4],
         isStarred: b.starredBy?.includes(userId) || false
       })));
-    } catch (err) { 
-      console.error("Fetch Error:", err); 
+    } catch (err) {
+      console.error("Fetch Error:", err);
     }
   }, [userId, activeTab]);
 
-  useEffect(() => { 
-    fetchBoards(); 
-  }, [fetchBoards]);
+  useEffect(() => {
+    fetchBoards();
+  }, [activeTab]);
 
   const handleAction = async (id, action) => {
     setActiveMenuId(null);
+
+    // Check karein ki userId available hai ya nahi
+    if (!userId) {
+      alert("User ID missing. Please login again.");
+      return;
+    }
+
     try {
       if (action === "STAR") {
         const target = boards.find(b => b.id === id);
-        if (activeTab === "Starred" && target?.isStarred) {
-          setBoards(boards.filter(b => b.id !== id));
-        } else {
-          setBoards(boards.map(b => b.id === id ? { ...b, isStarred: !b.isStarred } : b));
-        }
-        
-        await fetch(`${API_BOARDS}/star/${id}`, {
+        const alreadyStarred = target?.isStarred;
+
+        // Optimistic UI update
+        setBoards(prev =>
+          prev.map(b =>
+            b.id === id
+              ? { ...b, isStarred: !alreadyStarred }
+              : b
+          )
+        );
+
+        const url = alreadyStarred
+          ? `${API_BOARDS}/unstar/${id}`
+          : `${API_BOARDS}/star/${id}`;
+
+        const response = await fetch(url, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId })
         });
-        fetchBoards();
-      } 
+
+        if (!response.ok) {
+          throw new Error("Failed to update star status");
+        }
+
+        // Agar hum 'Starred' tab me hain aur unstar kiya hai, toh turant list se hata dein
+        if (activeTab === "Starred" && alreadyStarred) {
+          setBoards(prev => prev.filter(b => b.id !== id));
+        } else {
+          // Server se fresh boards fetch karke state sync kar lein taaki star icon na hate
+          fetchBoards();
+        }
+      }
       else if (action === "RENAME") {
         setEditingId(null);
-        setBoards(boards.map(b => b.id === id ? { ...b, title: renameText } : b));
+
+        // Frontend instantly update
+        setBoards(prev =>
+          prev.map(b =>
+            b.id === id
+              ? { ...b, title: renameText }
+              : b
+          )
+        );
+
         await fetch(`${API_BOARDS}/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: renameText })
         });
-        fetchBoards();
-      } 
+      }
       else if (action === "DELETE") {
         if (activeTab === "Trash") {
           if (!window.confirm("Permanently delete this board? This cannot be undone.")) return;
-          setBoards(boards.filter(b => b.id !== id));
+
+          setBoards(prev => prev.filter(b => b.id !== id));
+
           await fetch(`${API_BOARDS}/${id}`, {
             method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+          });
+
+        } else {
+          setBoards(prev => prev.filter(b => b.id !== id));
+
+          await fetch(`${API_BOARDS}/trash/${id}`, {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId })
           });
-        } else {
-          setBoards(boards.filter(b => b.id !== id));
-          await fetch(`${API_BOARDS}/trash/${id}`, {
-            method: "PUT", 
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, toTrash: true })
-          });
         }
-        fetchBoards();
       }
       else if (action === "RESTORE") {
-        setBoards(boards.filter(b => b.id !== id));
-        await fetch(`${API_BOARDS}/trash/${id}`, {
+        setBoards(prev => prev.filter(b => b.id !== id));
+
+        await fetch(`${API_BOARDS}/restore/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, toTrash: false })
+          body: JSON.stringify({ userId })
         });
-        fetchBoards();
       }
-    } catch (err) { 
-      console.error(err);
+    } catch (err) {
+      console.error("Action Error:", err);
       fetchBoards();
     }
   };
@@ -200,8 +237,8 @@ export default function HomePage() {
         </div>
 
         <div style={{ ...styles.navRight, position: "relative" }} onClick={e => e.stopPropagation()}>
-          <div 
-            style={{ ...styles.avatar, cursor: "pointer" }} 
+          <div
+            style={{ ...styles.avatar, cursor: "pointer" }}
             onClick={() => setShowProfileMenu(!showProfileMenu)}
           >
             {avatarChar}
@@ -236,11 +273,11 @@ export default function HomePage() {
               <e.icon size={16} /> {e.label}
             </button>
           ))}
-            <input id="file" type="file" accept=".pdf,.png" hidden />
-            <label htmlFor="file" className="pill-btn" style={{ ...styles.pill, cursor: 'pointer' }}>
-              <Upload size={16} />
-              Import a file
-            </label>
+          <input id="file" type="file" accept=".pdf,.png" hidden />
+          <label htmlFor="file" className="pill-btn" style={{ ...styles.pill, cursor: 'pointer' }}>
+            <Upload size={16} />
+            Import a file
+          </label>
         </div>
 
         {/* TABS */}
@@ -257,7 +294,7 @@ export default function HomePage() {
             .map(b => (
               <div key={b.id} className="board-row-item" style={{ ...styles.boardRow, cursor: "pointer", position: "relative" }} onClick={() => editingId !== b.id && navigate(`/board/${b.id}`)}>
                 <div style={{ ...styles.boardSwatch, background: b.accent }} />
-                
+
                 <div style={{ ...styles.boardInfo, flex: 1 }}>
                   {editingId === b.id ? (
                     <div style={{ display: "flex", gap: "6px" }} onClick={e => e.stopPropagation()}>
@@ -279,7 +316,7 @@ export default function HomePage() {
                   <button style={styles.moreButton} onClick={() => setActiveMenuId(activeMenuId === b.id ? null : b.id)}>
                     <MoreHorizontal size={18} />
                   </button>
-                  
+
                   {activeMenuId === b.id && (
                     <div style={{ position: "absolute", right: 0, top: 30, background: "white", border: "1.5px solid #22201B", borderRadius: "8px", boxShadow: "4px 4px 0px #22201B", zIndex: 10, width: "150px", display: "flex", flexDirection: "column", padding: "6px", gap: "2px" }}>
                       {activeTab !== "Trash" && (

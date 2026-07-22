@@ -272,7 +272,7 @@ const Konva = ({ tool, lines, setLines, shapes, setShapes, texts, setTexts, tabl
 
         <input
           type="range"
-          min="0.5"
+          min="0.1"
           max="3"
           step="0.1"
           value={zoom}
