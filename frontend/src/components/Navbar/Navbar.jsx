@@ -61,15 +61,17 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
         .nav-action-btn {
           padding: 8px 16px; border-radius: 6px; border: 1.5px solid #22201B;
           background: #EAE3D3; color: #22201B; font-family: 'Architects Daughter', cursive;
-          font-size: 14px; cursor: pointer; transition: background 0.15s;
+          font-size: 14px; cursor: pointer; transition: all 0.15s ease;
         }
-        .nav-action-btn:hover { background: #D8D0C0; }
+        .nav-action-btn:hover { background: #D8D0C0; transform: translateY(-1px); }
+        .nav-action-btn:active { transform: translateY(0); }
         .nav-action-btn-primary {
           padding: 8px 16px; border-radius: 6px; border: 1.5px solid #22201B;
           background: #F2994A; color: #22201B; font-family: 'Architects Daughter', cursive;
           font-size: 14px; cursor: pointer; box-shadow: 2px 2px 0px #22201B;
-          transition: transform 0.1s, box-shadow 0.1s;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
+        .nav-action-btn-primary:hover { transform: translateY(-1px); box-shadow: 3px 3px 0px #22201B; }
         .nav-action-btn-primary:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #22201B; }
 
         .nav-share-container {
@@ -104,8 +106,8 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
         .board-logout-btn:hover { background: #fff5f5; }
       `}</style>
       
-      <nav style={{ ...styles.nav, position: "fixed", top: 0, width: "100%", zIndex: 1000 }}>
-        <div style={styles.brand}>
+      <nav style={{ ...styles.nav, position: "fixed", top: 0, width: "100%", zIndex: 1000, pointerEvents: "none" }}>
+        <div style={{ ...styles.brand, pointerEvents: "auto" }}>
           <SketchrLogo size={35} />
           Sketchr
           <input 
@@ -117,7 +119,7 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
           />
         </div>
 
-        <div className="nav-btn-group" style={{ position: "relative" }}>
+        <div className="nav-btn-group" style={{ position: "relative", pointerEvents: "auto" }}>
           <button className="nav-action-btn" onClick={clear}>Clear</button>
           <button className="nav-action-btn" onClick={() => navigate('/board/new')}>New Board</button>
           <button className="nav-action-btn-primary" title="Save" onClick={onSave}>Save 💾</button>
