@@ -84,7 +84,7 @@ const Home = () => {
 
       let response;
       if (boardId) {
-        response = await fetch(`http://localhost:5000/api/boards/${boardId}`, {
+        response = await fetch(`https://sketchr.onrender.com/api/boards/${boardId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"
@@ -92,7 +92,7 @@ const Home = () => {
           body: JSON.stringify(boardData)
         });
       } else {
-        response = await fetch("http://localhost:5000/api/boards/createboard", {
+        response = await fetch("https://sketchr.onrender.com/api/boards/createboard", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -115,7 +115,7 @@ const Home = () => {
   // Fetching data of existing board using api
   const getBoard = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/boards/${id}`);
+      const response = await fetch(`https://sketchr.onrender.com/api/boards/${id}`);
 
       if (!response.ok) {
         throw new Error("Board not found");

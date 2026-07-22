@@ -13,7 +13,7 @@ const QUICK_ACTIONS = [
 const TABS = ["All boards", "Shared with me", "Starred", "Trash"];
 const ACCENT_COLORS = [COLORS.primary, COLORS.mint, COLORS.sun, COLORS.secondary];
 
-const SERVER_ORIGIN = "http://localhost:5000";
+const SERVER_ORIGIN = "https://sketchr.onrender.com";
 const API_BOARDS = `${SERVER_ORIGIN}/api/boards`;
 
 export default function HomePage() {

@@ -44,7 +44,7 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
 
   const createUser = async () => {
     try {
-      const res = await fetch("http://localhost:5000/user/register", {
+      const res = await fetch("https://sketchr.onrender.com/user/register", {
       // const res = await fetch("https://sketchr.onrender.com/user/register", {
         method: "POST",
         headers: {
