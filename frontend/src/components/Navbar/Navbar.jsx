@@ -33,7 +33,6 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
       if (typeof onShareSubmit === "function") {
         await onShareSubmit();
       } else {
-        alert(`Board successfully shared with ${currentEmail}!`);
         updateEmail("");
       }
       setShowShareInput(false);
@@ -120,9 +119,9 @@ const Navbar = ({ onSave, title, setTitle, ShareEmail, setShareEmail, onShareSub
         </div>
 
         <div className="nav-btn-group" style={{ position: "relative", pointerEvents: "auto" }}>
+          <button className="nav-action-btn-primary font-bold" title="Save" onClick={()=>navigate('/Dashboard')}>Home 💾</button>
           <button className="nav-action-btn" onClick={clear}>Clear</button>
           <button className="nav-action-btn" onClick={() => navigate('/board/new')}>New Board</button>
-          <button className="nav-action-btn-primary" title="Save" onClick={onSave}>Save 💾</button>
           
           <button 
             className="nav-action-btn" 

@@ -63,7 +63,7 @@ export default function RegisterPage({ onRegisterSuccess, onGoToLogin }) {
         setError(data.message);
         return;
       }
-
+      
       // Register ke baad login page par bhej do
       navigate("/Login");
 
