@@ -2,52 +2,45 @@ import React, { useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 
 const Color = ({ color, setColor, tool, setTool, prevToolRef }) => {
-  // 1. Component load hote waqt hum check karenge ki kya LocalStorage me purane colors hain?
   const [colorStore, setColorStore] = useState(() => {
     const savedColors = localStorage.getItem("sketchr_colors");
     if (savedColors) {
-      return JSON.parse(savedColors); // Agar hain to unhe load kar lo
+      return JSON.parse(savedColors);
     }
-    // Agar nahi hain (pehli baar open kiya hai) to ye default colors de do
     return [
       { id: 1, hexValue: "#aabbcc" },
       { id: 2, hexValue: "#ababab" },
     ];
   });
 
-  // 2. useEffect tab chalega jab bhi 'colorStore' me koi naya color add hoga
-  // Ye har naye color ko turant LocalStorage me hamesha ke liye save kar dega
   useEffect(() => {
     localStorage.setItem("sketchr_colors", JSON.stringify(colorStore));
   }, [colorStore]);
 
   const saveColor = (selectedColor) => {
-    // Agar color already hai to save na karein
     const isColorExist = colorStore.some((item) => item.hexValue === selectedColor);
-
-    if (isColorExist) {
-      return;
-    } else {
-      // Naya color list me add karein
-      setColorStore([...colorStore, { id: Date.now(), hexValue: selectedColor }]);
-    }
+    if (isColorExist) return;
+    setColorStore([...colorStore, { id: Date.now(), hexValue: selectedColor }]);
   };
 
   const handleColorChange = (newColor) => {
     setColor(newColor);
-    // Agar current tool 'color' tha, to wapas active drawing tool (pen/shape) par switch kar do
-    if (tool === 'color') {
-      setTool(prevToolRef.current || 'pen');
-    }
+  };
+
+  // Jab color par click karke finalize karein, tab turant purane tool par chale jao
+  const applyColorAndSwitchTool = (hex) => {
+    setColor(hex);
+    const targetTool = prevToolRef.current || 'pen';
+    setTool(targetTool);
   };
 
   return (
-    <div className="border-2 border-black w-[370px] bg-sky-200 rounded-lg p-3">
+    <div className="border-2 border-black w-[370px] bg-sky-200 rounded-lg p-3 shadow-2xl">
       <div className="w-full">
         <div className="flex gap-4">
 
           {/* ----- LEFT SIDE: Color Picker ----- */}
-          <div className="flex flex-col w-[200px]">
+          <div className="flex flex-col w-[200px]" onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
             <HexColorPicker
               color={color}
               onChange={handleColorChange}
@@ -64,9 +57,12 @@ const Color = ({ color, setColor, tool, setTool, prevToolRef }) => {
 
               <button
                 className="border-[1px] px-3 py-1 rounded-md border-black bg-blue-500 text-white font-medium hover:bg-blue-600 active:bg-green-400 transition-colors"
-                onClick={() => saveColor(color)}
+                onClick={() => {
+                  saveColor(color);
+                  applyColorAndSwitchTool(color);
+                }}
               >
-                Save
+                Select
               </button>
             </div>
           </div>
@@ -78,7 +74,7 @@ const Color = ({ color, setColor, tool, setTool, prevToolRef }) => {
                 key={clr.id}
                 className="w-8 h-8 rounded-md m-1 cursor-pointer border border-gray-400 hover:scale-110 transition-transform shrink-0"
                 style={{ backgroundColor: clr.hexValue }}
-                onClick={() => handleColorChange(clr.hexValue)}
+                onClick={() => applyColorAndSwitchTool(clr.hexValue)}
                 title={clr.hexValue}
               ></span>
             ))}

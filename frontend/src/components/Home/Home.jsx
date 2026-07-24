@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import Bottom from "../Bottombar/Bottom";
-import Sidebar from "../Sidebar/Sidebar";
+// import Sidebar from "../Sidebar/Sidebar";
 import Konva from "../Konva/Konva";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,9 @@ const Home = () => {
   // Settings
   const [color, setColor] = useState("#8e47ba");
   const [strokeWidth, setStrokeWidth] = useState(3);
+
+  // Ref to access Konva stage/canvas for image export
+  const konvaRef = useRef(null);
 
   // --- Undo/Redo Logic ---
   const [history, setHistory] = useState([{ lines: [], shapes: [], texts: [], tables: [] }]);
@@ -52,12 +55,14 @@ const Home = () => {
       setTables(history[newStep].tables);
     }
   };
-  const Clear = () =>{
+
+  const Clear = () => {
     setLines([]);
     setShapes([]);
     setTexts([]);
     setTables([]);
-  }
+  };
+
   const saveHistory = (currentLines, currentShapes, currentTexts, currentTables) => {
     const newState = { lines: currentLines, shapes: currentShapes, texts: currentTexts, tables: currentTables };
     const newHistory = history.slice(0, historyStep + 1);
@@ -158,18 +163,17 @@ const Home = () => {
 
   const [ShareEmail, setShareEmail] = useState("");
 
-  // Share board using EmailJS (Updated to use the dynamic ShareEmail state)
+  // Share board using EmailJS
   const shareboard = async () => {
     if (!ShareEmail) return;
 
-    // Pehle board save kar lete hain taaki current link/data updated rahe
     await saveBoard();
 
     try {
       const templateParams = {
-        email: ShareEmail, // Yahan hardcoded email ki jagah user ka entered email pass hoga
+        email: ShareEmail,
         board_name: title || "Untitled Board",
-        board_link: window.location.href // Current URL pass karega
+        board_link: window.location.href
       };
 
       await emailjs.send(
@@ -186,18 +190,100 @@ const Home = () => {
     }
   };
 
+  // --- Handle Download Functionality (Fixed White Background for Image) ---
+  const handleDownload = (format) => {
+    const fileName = title ? title.trim().replace(/\s+/g, '_') : "sketchr_board";
+
+    if (format === 'image') {
+      if (konvaRef.current) {
+        const stage = konvaRef.current;
+        
+        // Temporarily background ko white set karke image generate karna
+        const oldFill = stage.container().style.backgroundColor;
+        stage.container().style.backgroundColor = '#FFFFFF';
+
+        const uri = stage.toDataURL({ pixelRatio: 2 }); // High quality ke liye pixelRatio 2
+
+        // Wapas purana background restore karna
+        stage.container().style.backgroundColor = oldFill;
+
+        const link = document.createElement("a");
+        link.download = `${fileName}.png`;
+        link.href = uri;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        const canvas = document.querySelector("canvas");
+        if (canvas) {
+          const imageURL = canvas.toDataURL("image/png");
+          const link = document.createElement("a");
+          link.href = imageURL;
+          link.download = `${fileName}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          alert("Could not generate image!");
+        }
+      }
+    } else if (format === 'json') {
+      const boardData = {
+        title: title || "Untitled Board",
+        elements: { lines, shapes, texts, tables }
+      };
+      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(boardData, null, 2))}`;
+      const link = document.createElement("a");
+      link.href = jsonString;
+      link.download = `${fileName}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // --- Handle Open/Import JSON Board ---
+  const handleOpenBoard = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const jsonData = JSON.parse(event.target.result);
+        
+        setTitle(jsonData.title || "Untitled Board");
+        setLines(jsonData.elements?.lines || []);
+        setShapes(jsonData.elements?.shapes || []);
+        setTexts(jsonData.elements?.texts || []);
+        setTables(jsonData.elements?.tables || []);
+
+        setHistory([jsonData.elements || { lines: [], shapes: [], texts: [], tables: [] }]);
+        setHistoryStep(0);
+
+        alert("Board successfully opened!");
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+        alert("Invalid board file format!");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <>
       <Navbar 
         onSave={saveBoard} 
         title={title} 
         setTitle={setTitle} 
-        clear = {Clear}
+        clear={Clear}
         ShareEmail={ShareEmail} 
         setShareEmail={setShareEmail} 
-        onShareSubmit={shareboard} // Navbar ko function pass kar diya hai
+        onShareSubmit={shareboard}
+        onDownload={handleDownload}
+        onOpenBoard={handleOpenBoard}
       />
-      <Sidebar />
+      {/* <Sidebar /> */}
 
       <Bottom
         tool={tool} setTool={setTool}
@@ -211,6 +297,7 @@ const Home = () => {
       />
 
       <Konva
+        ref={konvaRef}
         tool={tool}
         lines={lines} setLines={setLines}
         shapes={shapes} setShapes={setShapes}
