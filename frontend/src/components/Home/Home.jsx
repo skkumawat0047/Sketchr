@@ -182,7 +182,7 @@ const Home = () => {
         templateParams,
         "FN4XnoiwNOEW0HjhN"
       );
-      alert(`Board successfully shared with ${ShareEmail}!`);
+      // alert(`Board successfully shared with ${ShareEmail}!`);
       setShareEmail("");
     } catch (error) {
       console.error("EmailJS Error:", error);
